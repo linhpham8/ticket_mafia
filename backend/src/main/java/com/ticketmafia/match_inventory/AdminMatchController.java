@@ -86,9 +86,9 @@ public class AdminMatchController {
     }
 
     private Instant parseInstant(String value) {
-        if (value == null || value.isBlank()) {
-            return null;
-        }
+        // if (value == null || value.isBlank()) {
+        //     return null;
+        // }
         try {
             return Instant.parse(value);
         } catch (RuntimeException exception) {

@@ -21,6 +21,7 @@ Chạy thử:
 
 import os
 import re
+import sys
 import argparse
 from concurrent.futures import ThreadPoolExecutor
 
@@ -39,6 +40,17 @@ MAX_PATCH_CHARS = 6000
 
 SEVERITY_ICON = {"high": "🔴", "medium": "🟡", "low": "🔵"}
 CATEGORY_LABEL = {a.category: a.label for a in ALL_AGENTS}
+
+# Nhóm phát hiện sẽ CHẶN merge nếu có. Convention không nằm đây -> chỉ là góp ý.
+# Có thể đổi qua biến môi trường, vd: REVIEW_BLOCKING_CATEGORIES="bug,security"
+BLOCKING_CATEGORIES = set(
+    os.getenv("REVIEW_BLOCKING_CATEGORIES", "bug,security,performance").split(",")
+)
+
+
+def has_blocking(findings: list[dict]) -> bool:
+    """True nếu có ít nhất một finding thuộc nhóm chặn merge."""
+    return any(f.get("category") in BLOCKING_CATEGORIES for f in findings)
 
 
 # ----------------------------------------------------------------------------
@@ -82,17 +94,30 @@ def review_file(client: Anthropic, filename: str, patch: str) -> list[dict]:
 
 def build_summary(all_findings: list[dict]) -> str:
     if not all_findings:
-        return "## 🤖 AI Code Review\n\n✅ Cả 4 agent không phát hiện vấn đề đáng kể."
+        return ("## 🤖 AI Code Review\n\n"
+                "✅ Cả 4 agent không phát hiện vấn đề đáng kể. **Cho phép merge.**")
 
     counts = {}
     for f in all_findings:
         counts[f["category"]] = counts.get(f["category"], 0) + 1
 
-    lines = ["## 🤖 AI Code Review (4 agent)", "",
-             f"Phát hiện **{len(all_findings)}** vấn đề:", ""]
+    # Phán quyết gate
+    blocking = has_blocking(all_findings)
+    block_labels = ", ".join(CATEGORY_LABEL.get(c, c) for c in BLOCKING_CATEGORIES)
+    if blocking:
+        verdict = (f"### ❌ CHẶN MERGE\n"
+                   f"Phát hiện vấn đề thuộc nhóm chặn ({block_labels}). "
+                   f"Cần xử lý trước khi merge.")
+    else:
+        verdict = ("### ✅ CHO PHÉP MERGE\n"
+                   "Chỉ có góp ý về coding convention — không bắt buộc, nên xem qua.")
+
+    lines = ["## 🤖 AI Code Review (4 agent)", "", verdict, "",
+             f"Tổng cộng **{len(all_findings)}** vấn đề:", ""]
     for cat, label in CATEGORY_LABEL.items():
         if cat in counts:
-            lines.append(f"- {label}: {counts[cat]}")
+            tag = " (chặn)" if cat in BLOCKING_CATEGORIES else ""
+            lines.append(f"- {label}{tag}: {counts[cat]}")
     lines += ["", "Tổng hợp:", ""]
     for f in sorted(all_findings, key=lambda x: x.get("severity", "low")):
         icon = SEVERITY_ICON.get(f.get("severity"), "")
@@ -191,6 +216,7 @@ def main():
     print("[3/4] Tổng hợp ...")
     summary = build_summary(all_findings)
     inline = build_inline_comments(all_findings, valid_lines)
+    blocking = has_blocking(all_findings)
 
     if args.dry_run:
         print("\n[4/4] (dry-run)\n")
@@ -198,11 +224,22 @@ def main():
         print(f"\n--- {len(inline)} comment inline ---")
         for c in inline:
             print(f"  {c['file']}:{c['line']} -> {c['body'][:80]}")
-        return
+    else:
+        print("[4/4] Đăng review ...")
+        client.post_review(summary, inline)
+        print("      Đã đăng ✅")
 
-    print("[4/4] Đăng review ...")
-    client.post_review(summary, inline)
-    print("      Done ✅")
+    # ----- Merge gate -----
+    # Comment LUÔN được đăng ở trên (để reviewer thấy mọi góp ý).
+    # Sau đó job thoát theo phán quyết: có bug/security/performance -> exit 1
+    # (job CI fail). Convention-only hoặc sạch -> exit 0 (job pass).
+    # LƯU Ý: exit 1 chỉ làm "đỏ" check; muốn CHẶN merge thật phải bật
+    # branch protection (GitHub) / "Pipelines must succeed" (GitLab). Xem README.
+    if blocking:
+        print("❌ Có lỗi thuộc nhóm chặn (bug/security/performance) -> chặn merge.")
+        sys.exit(1)
+    print("✅ Không có lỗi chặn -> cho phép merge.")
+    sys.exit(0)
 
 
 if __name__ == "__main__":

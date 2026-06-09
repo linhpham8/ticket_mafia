@@ -11,6 +11,7 @@ permissions:
 
 jobs:
   review:
+    name: AI Code Review
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

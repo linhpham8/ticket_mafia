@@ -1,0 +1,32 @@
+Auth0_DEV:
+    ESB_API: 
+        client_id: yYcxTAoD2T1mIFdwep5R1ONGuSVKDL8X
+        client_secret: ALMtngqA3tjwP7ULD8SiLddIURE-mXW4XA8OWL84xMxgBLN_4rmiV2FOOM7NqwIE
+    ESB_BlueYonder:
+        client_id: x963zxSwK9HKIbxFjQXsaSDxBM3pcWdZ
+        client_secret: LGn2kum04ninmJY9K-I0gDd6UdEGxi7znZLSmci-jAqSLiOm62VEaKTsf65XvxxN
+        audience : ESB_API
+
+Auth0_QC:
+    ESB_API: 
+        client_id: BoFWe1HjBOS6lKRgg1twCCZm1mKDfP0i
+        client_secret: 2rFkJdiUvItRIfXBl60xj73xC9EmQR0VM4gzJa8AUsWL6Zjc1VwEerjOnygv7NX_
+    ESB_BlueYonder:
+        client_id: x963zxSwK9HKIbxFjQXsaSDxBM3pcWdZ
+        client_secret: LGn2kum04ninmJY9K-I0gDd6UdEGxi7znZLSmci-jAqSLiOm62VEaKTsf65XvxxN
+        audience : ESB_API
+ 
+Auth0_UAT:
+    ESB_API: 
+        client_id: p3g5oSgVJqjS89JCBpFCYHVnllRDSRUN
+        client_secret: yVcFsz8Y8jGoN8rpRlzCBDB4gsSM4DF06SChI3pKu9IydQkK2_CYVrKZCKKHGk75
+    ESB_BlueYonder:
+        client_id: bVFsJA7pNnXWYRByHlSuFckNGAgWolGJ
+        client_secret: 2c2AiXN9WgmfKwEdS3sHHGoKIN5zLt9mib-rg5BEBsMjOVabCxwRwExBOJ5KbNbl
+        audience : ESB_API
+    1SEAL_API:
+        client_id : vr1frae9CWcloRT86xzo6UwREmJ4UFkg
+        client_secret : XZEHdrmSkGz3A31RVt3Yxh63mOa5a1erK3AxJpUkbBY7_DhIAIC7gZmqC8oUSlIE
+        audience : https://api-salestools-uat.vinid.dev
+        organization : org_M45yo1CL1dha1VP0
+        grant_type : http://auth0.com/oauth/grant-type/password-realm

@@ -1,0 +1,21 @@
+{
+  "project": "prism-v2.1.1",
+  "project_root": "/home/linhpham8/OneMount/SourceCode/PRISM/prism-v2.1.1",
+  "created": "2026-06-05",
+  "sessions": [
+    {
+      "session_id": "f79c9f9c-20e1-4314-a385-9bc19981d5b0",
+      "agent": "claude-code",
+      "model": "claude-sonnet-4-6",
+      "date": "2026-06-04",
+      "input_tokens": 3460,
+      "cache_creation_tokens": 710038,
+      "cache_read_tokens": 6503625,
+      "output_tokens": 78725,
+      "total_input_equiv": 7217123,
+      "messages": 80,
+      "source_file": "/home/linhpham8/.claude/projects/-home-linhpham8-OneMount-SourceCode-PRISM-prism-v2-1-1/f79c9f9c-20e1-4314-a385-9bc19981d5b0.jsonl"
+    }
+  ],
+  "last_updated": "2026-06-05T09:09:30Z"
+}

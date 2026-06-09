@@ -1,0 +1,29 @@
+spring:
+  application:
+    name: ticket_mafia_backend
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/ticket_mafia}
+    username: ${SPRING_DATASOURCE_USERNAME:ticket_mafia}
+    password: ${SPRING_DATASOURCE_PASSWORD:ticket_mafia}
+  flyway:
+    enabled: true
+security:
+  session:
+    inactive-timeout: PT15M
+ticketing:
+  qr:
+    signing-secret: ${TICKETING_QR_SIGNING_SECRET}
+  hold:
+    duration: PT10M
+  admin-confirm:
+    duration: PT10M
+  scheduler:
+    release-expired-holds:
+      cron: "0 * * * * *"
+logging:
+  format: json
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics

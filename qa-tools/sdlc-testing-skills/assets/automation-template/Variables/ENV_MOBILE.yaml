@@ -1,0 +1,17 @@
+app_qc:
+  APP_DEV : 1Seal-QC-4531.apk
+  APP_DEV_WES : app-qc-release-1965.apk
+  ONESEAL_APP_PACKAGE : com.vingroup.oneseal.QC
+  WES_APP_PACKAGE: com.one.oned.wes.qc
+  VinShop_APP_PACKAGE: com.vingroup.VinIDMerchantApp.QC
+app_uat:
+  APP_DEV : 1Seal-QC-4354.apk
+  APP_DEV_WES: app-uat-release-1163.apk
+  ONESEAL_APP_PACKAGE : com.vingroup.oneseal.UAT
+  WES_APP_PACKAGE: com.one.oned.wes.uat
+  VinShop_APP_PACKAGE: com.vingroup.VinIDMerchantApp.UAT
+app_prd:
+  VinShop_APP_PACKAGE: com.vingroup.VinIDMerchantApp
+
+
+

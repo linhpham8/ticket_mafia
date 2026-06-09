@@ -1,0 +1,39 @@
+{
+  "apiBaseUrl": "https://qtmcloud.qmetry.com",
+  "createTestCasePath": "/rest/api/latest/testcases",
+  "auth": {
+    "headerName": "apiKey",
+    "scheme": "",
+    "tokenEnvVar": "QMETRY_API_TOKEN"
+  },
+  "project": {
+    "id": "FDP",
+    "jiraProjectId": 13279
+  },
+  "mapping": {
+    "summary": "Summary",
+    "precondition": "Precondition",
+    "testData": "Test Data",
+    "steps": "Step summary",
+    "expectedResult": "Expected result",
+    "priority": "Priority",
+    "labels": "Story Linkages",
+    "sprint": "Sprint"
+  },
+  "priorityMap": {
+    "P1": "Critical",
+    "P2": "High",
+    "P3": "Medium",
+    "P4": "Low",
+    "Critical": "Critical",
+    "High": "High",
+    "Medium": "Medium",
+    "Low": "Low"
+  },
+  "defaults": {
+    "moduleId": null,
+    "folderId": null,
+    "status": "Draft",
+    "sprint": null
+  }
+}

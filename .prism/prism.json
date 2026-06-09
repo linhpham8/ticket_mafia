@@ -1,0 +1,110 @@
+{
+  "name": "prism",
+  "version": "2.1.1",
+  "version_source": "VERSION",
+  "description": "PRISM — One Phase, One Prompt, One Complete Deliverable",
+  "platform": "claude",
+  "prism_root": ".prism",
+  "paths": {
+    "core": ".prism/core",
+    "standards": ".prism/core/standards",
+    "templates": ".prism/core/templates",
+    "adapters": ".prism/adapters"
+  },
+  "adapters": {
+    "guided": {
+      "claude": {
+        "system_prompt": "adapters/claude/CLAUDE.md",
+        "install_path": "CLAUDE.md"
+      },
+      "copilot": {
+        "system_prompt": "adapters/copilot/copilot-instructions.md",
+        "install_path": ".github/copilot-instructions.md"
+      },
+      "codex": {
+        "system_prompt": "adapters/codex/AGENTS.md",
+        "install_path": "AGENTS.md"
+      },
+      "cursor": {
+        "system_prompt": "adapters/cursor/CURSORRULES.md",
+        "install_path": ".cursor/rules/prism.mdc"
+      },
+      "gemini": {
+        "system_prompt": "adapters/gemini/GEMINI.md",
+        "install_path": "GEMINI.md"
+      },
+      "windsurf": {
+        "system_prompt": "adapters/windsurf/windsurf-rules.md",
+        "install_path": ".windsurf/rules/prism.md"
+      },
+      "roo": {
+        "system_prompt": "adapters/roo/roo-rules.md",
+        "install_path": ".roo/rules/prism.md"
+      },
+      "trae": {
+        "system_prompt": "adapters/trae/trae-rules.md",
+        "install_path": ".trae/rules/project_rules.md"
+      },
+      "kiro": {
+        "system_prompt": "adapters/kiro/AGENTS.md",
+        "install_path": "AGENTS.md"
+      },
+      "opencode": {
+        "system_prompt": "adapters/opencode/AGENTS.md",
+        "install_path": "AGENTS.md"
+      },
+      "antigravity": {
+        "system_prompt": "adapters/antigravity/AGENTS.md",
+        "install_path": "AGENTS.md"
+      }
+    },
+    "freedom": {
+      "claude": {
+        "system_prompt": "adapters/claude/system-prompt-freedom.md",
+        "install_path": "CLAUDE.md"
+      },
+      "copilot": {
+        "system_prompt": "adapters/copilot/copilot-instructions-freedom.md",
+        "install_path": ".github/copilot-instructions.md"
+      },
+      "codex": {
+        "system_prompt": "adapters/codex/AGENTS-freedom.md",
+        "install_path": "AGENTS.md"
+      },
+      "cursor": {
+        "system_prompt": "adapters/cursor/CURSORRULES-freedom.md",
+        "install_path": ".cursor/rules/prism.mdc"
+      },
+      "gemini": {
+        "system_prompt": "adapters/gemini/GEMINI-freedom.md",
+        "install_path": "GEMINI.md"
+      },
+      "windsurf": {
+        "system_prompt": "adapters/windsurf/windsurf-rules-freedom.md",
+        "install_path": ".windsurf/rules/prism.md"
+      },
+      "roo": {
+        "system_prompt": "adapters/roo/roo-rules-freedom.md",
+        "install_path": ".roo/rules/prism.md"
+      },
+      "trae": {
+        "system_prompt": "adapters/trae/trae-rules-freedom.md",
+        "install_path": ".trae/rules/project_rules.md"
+      },
+      "kiro": {
+        "system_prompt": "adapters/kiro/AGENTS-freedom.md",
+        "install_path": "AGENTS.md"
+      },
+      "opencode": {
+        "system_prompt": "adapters/opencode/AGENTS-freedom.md",
+        "install_path": "AGENTS.md"
+      },
+      "antigravity": {
+        "system_prompt": "adapters/antigravity/AGENTS-freedom.md",
+        "install_path": "AGENTS.md"
+      }
+    }
+  },
+  "docs_dir": "docs",
+  "templates_dir": "core/templates"
+}

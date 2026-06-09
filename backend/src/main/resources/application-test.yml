@@ -1,0 +1,14 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:ticket_mafia;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  flyway:
+    locations: classpath:db/smoke-h2
+security:
+  session:
+    inactive-timeout: PT15M
+ticketing:
+  qr:
+    signing-secret: local-test-ticket-qr-signing-secret

@@ -1,0 +1,150 @@
+AuthOM_DEV:
+    VINSHOP_PARTNER: 
+        client_id: FRadvECSfZkGGesHfJJlinbOqTmoGaQs
+        client_secret: fWiDiZSwryjKqfczxngSoSCWPVYllRqfljjPtSjvpuwjdORpRVleRxNFDXZWCknb
+AuthOM_QC:
+    VINSHOP_PARTNER:
+        #Chuỗi cung ứng VinShop 
+        client_id: fwJSXtxoUSjxVkiESvGXnsnNlZHGTVwa
+        client_secret: fWiDiZSwryjKqfczxngSoSCWPVYllRqfljjPtSjvpuwjdORpRVleRxNFDXZWCknb
+    AUTOMATION_M2M:
+        #Chuỗi cung ứng VinShop sử dụng thằng này Automation_M2M
+        client_id: GPHkrfdflpGSMcEEUPRbFrdmdLXNMzvA
+        client_secret: rnoZjuMtnzSxQySEwPokddbIegpFdLqnpsHZZZywnQEWehsyTnZaDpmZWPzLBQoI
+    OPS_FIREBASE:
+        #OneGate - Supply Chain Orchestration Platform
+        client_id: aKyKDNIQolsCfbKdSCGfOgDbbXpAFwYX
+        client_secret: zeijKQuZGHhrSfWcMcSRiIwnivFfZTTsRuPdgmMmSBVDxnfmhZWBegukeZEaKKRQ
+    CMS_VINSHOP:
+        #VinShop CMS Web Admin
+        client_id: VKAWkIrSqnGGANpzCtbMWRskXfqlVtfK
+        client_secret: gaQCPlNNUeQMbsASyemhkdSSMXKhvHaFDvghSlMLjRlqMRmHGvHcIYGFEzbbLAmR
+    CORE_B2B_ADMIN:
+        # Core B2B Admin
+        client_id: ayYfDpeDGoyAtsIlWTXtviMsnKAAxKRz
+        client_secret: qRCenfNPQzVYfDMTRKymiKucuwBurPZJuBWgdIkomMJXqcApGGaVQrsRaLNuZchF
+    WES_PARTNER_CLIENT:
+        # WES partner client
+        client_id: wjCvzwQUUsmBlGXToKmshaNfOYcQJczD
+        client_secret: leLGEnoZlIKqbOSOsyzzTEkpwdGcyiysTooZvzCaHMFjTVXBcEFsBgiOWajBRFCH
+    WES_CLIENT:
+        # WES Client
+        client_id: JFxiGZIrrrwaUSbsVRevurrNZtBllPqM
+        client_secret: jZDGteikmYDEVvHAuBqBUHpcBIkzzLzJOscmHLwiqfBbBmQYMpPvUrtrBSfRtdzU
+    WMS_PARTNER_CLIENT:
+        # WMS Partner Client
+        client_id: HpSGcaqjalQmvtGOLImSRTaRsftEwezY
+        client_secret: SQioIbbNEaMdcYIMDEXdKocgwWNuqVCsDryrQelfYjgLPkNkaBPnHmiATZLruDWI
+    TMS Tier1 EasyAdmin Portal:
+        # TMS Tier1 EasyAdmin Portal
+        client_id: jwrSYrzWnVMuWSWlhLgRzKudaapCOUda
+        client_secret: TlwlvdfIneQSvJJnKjGMPWlcwsuRBLmiPyTtHLnrtMzBogtExlJJvMSrODeRDQch
+    DC_PORTAL:
+        # DC Portal
+        client_id: xiCITNEtrTKMwiSEohgQjgAdQqAmCnzb
+        client_secret: yaKUHDQCvWqufjOkVftqVTNthoCMwrAlBpVakSYEKroBLqQcVqaSbNrmwawVOZkN
+    BLUEYONDER:
+        # BLUEYONDER
+        client_id: bbuTCOxefTZGKKBUmPMfxyaOGmbjyqee
+        client_secret: OBvrZGzKEipPEcwunQWXZbIAwpmUYNrpJCihetwkXriKnhpSSaVUcoUQPTAQtxXO 
+    SCM_SERVICE:
+        # SCM Service
+        client_id: nPhJpnilNZmdQtTlWBOAQieYfkqTvcCD
+        client_secret: hzfNyLQzJgXnwfutdrskdzeGiYpMILmwmQhShMwQoIZrZHzCkCEJYuGQtnqQbSCj     
+    ESB_INTERNAL:
+        # ESB
+        client_id: JeyDWHnsCbgjKziEIRSNOvISQnYwqSBN
+        client_secret: guRUpSsRLGKvvsfSNVlHkXDPVRCyQjLjlbBgHIlCKFudAcWHQNvpqAHXsnHZleUc
+    TMS_ONEDRIVER_BFF:
+        # TMS_ONEDRIVER_BFF
+        client_id: uksyOVQehdrLpmCwYCCdBqoGZPBpvlLK
+        client_secret: qlSsZTTtyBGydvsvVmlXBUHdPzprOPreDuIUwCapmNDlNwwhIKdaOlRJehlkdrlR
+    TMS_TIER1_PORTAL:
+        # TMS_TIER1_PORTAL
+        client_id: TDXJUbArzOOAnYTaIRmLzkgePdiXrqbQ
+        client_secret: scjrrVgKehIZCykwjhdvggWFMVezEOxHjiTOZDxnjgCmoIrERKkdUwEEyGuTAgNZ
+    TMS_ONEDRIVER:
+        # TMS_ONEDRIVER
+        client_id: YmGjBVEcCoBSaCaXZEcvBEhKaxUjMZan
+        client_secret: JZnGQkvQGQkzAYjKukdvBAlZwtgpwiWuciOhKETdJMiSpfdqWHaZBgHDPTGzZwfd
+    DC_PORTAL:
+        # DC_PORTAL
+        client_id: xiCITNEtrTKMwiSEohgQjgAdQqAmCnzb
+        client_secret: yaKUHDQCvWqufjOkVftqVTNthoCMwrAlBpVakSYEKroBLqQcVqaSbNrmwawVOZkN
+    1SEAL_M2M:
+        # 1SEAL_M2M
+        client_id: ZMKWMOAeeSCYQKaeqZLIcEnJjgKyBfAq
+        client_secret: xyChqmgPrKGJZqVmkozIDttgmRKzxFztHZzCdWPMkSCrWryOOYKzvSyADqBkXDzw
+    CDP:
+        # CDP
+        client_id: WSlNpvzfWDXXDcsVznYLwBQrEsWanGRK
+        client_secret: jFswZBadbFHipZHAlHOFAvIlQqyyUKELOeqKButpjzmvXsgdxwCalJwdxhbcykpY
+    
+AuthOM_UAT:
+    VINSHOP_PARTNER: 
+        client_id: HdTwNxJJGfGuXgoefFOkPwEcurgtSmIC
+        client_secret: TuWseyrolfKbyXGMYfNtcmNjsTGOAHXXfLrvtyfegbyTHSPyAdxcylIJVSvNTMJb
+    OPS_FIREBASE:
+        #VinShop CMS Web Admin
+        client_id: zMLuybwVIFmWvdHhjyzBfAfAzsCkrdJZ
+        client_secret: mQAntiUHJrGmEEiDAzFZrQGXzrMYFqYvfZudTitwgaAAkpOgjVBjdgGoVsImLPwN
+    CMS_VINSHOP:
+        #VinShop CMS Web Admin
+        client_id: BEgBMKSjywqYrEirlLTFIxsKCTQDVZzv
+        client_secret: pojLGAfmFVvJXCUnPHoEDgQPnUGupgDAVmYLMpvNBlcsoTsiUEDUkliqCucqnDac
+    CORE_B2B_ADMIN:
+        # Core B2B Admin
+        client_id: fjFVupAsQzhfBEvzUGZMSmsuhylysezf
+        client_secret: qRCenfNPQzVYfDMTRKymiKucuwBurPZJuBWgdIkomMJXqcApGGaVQrsRaLNuZchF
+    WES_PARTNER_CLIENT:
+        # WES partner client
+        client_id: JYDOCiqpxrFDRGzRFyPbAOxprhYlVwjl
+        client_secret: leLGEnoZlIKqbOSOsyzzTEkpwdGcyiysTooZvzCaHMFjTVXBcEFsBgiOWajBRFCH
+    WES_CLIENT:
+        # WMS Partner Client
+        client_id: sLnWYtEZDIkprziggofNSjYdEcvrrcsD
+        client_secret: MdjaDPLBntTKZgOwtkfPnuFZzOAosGTBTeKPmqRTTNlwEVlFPjbsDGOWgxJkYhvT
+    WMS_PARTNER_CLIENT:
+        # WMS Partner Client
+        client_id: lbWNHEZWsooKQOORVDgrDhVScNhXHwsX
+        client_secret: msHVxJpSOimLkDYFOPUwUuIwjWQiJqlpDPuHXIwjRLJSLyqpfXYmDiheYSCqKClK
+    TMS_TIER1_PORTAL:
+        # TMS Tier1 EasyAdmin Portal
+        client_id: wSiMuffuDInTAdTeYfLyetxVvpoGTbHI
+        client_secret: LqRBjcSkaoHrzGRcMAeFRkHCEfdKtCZgelSPOKtRBwDADjMJmHjQhFQnMyyyBExg
+    DC_PORTAL:
+        # DC Portal
+        client_id: PjogvUipEjtBvpysYneYUnksDoYDRjue
+        client_secret: lSwmuqbtbHcFhyWdLGihkVQrGzKrFiHlzcdBvsbMYBxkVfCxVFWyLyAwqiOvjgPA
+    BLUEYONDER:
+        # BLUEYONDER
+        client_id: SdnvxbQckFIFdJtHukWqRkGsLwDnKnFG
+        client_secret: ulmTqKCvOazTBoWLQDmRUjiLkkbyCjSdCGWteIoYGlgZGPnvFiunSPoFXDLTiJhJ 
+    SCM_SERVICE:
+        # SCM Service
+        client_id: heANlnUZflgoZFUnbcmCtCRPCsHSYWKV
+        client_secret: pbUcRUIQhubBeMcrWxIGjriwMrwfeoRXbBgLHxIPwWiPKYhQIGuwEHTkKXyjuWPq   
+    ESB_INTERNAL:
+        # ESB
+        client_id: ENxBfIQBEmPLxoARNHhajmqNQfeHDOlL
+        client_secret: YchiOblXWqsGOtxhlxbswMpNeLhEritljxeRnfYoFStldAULnzBuJavpWMGVmuik
+    TMS_ONEDRIVER_BFF:
+        # TMS_ONEDRIVER_BFF
+        client_id: lDLucyIssRFrPBeaaTBVFuQkyLscUVyq
+        client_secret: UGwJxQFnhEQVsYYTndcHfphnDTSVkwqUXlYZPlwFrbYWAgFYjPSXIVonuhKCBhpK
+    TMS_TIER1_PORTAL:
+        # TMS_TIER1_PORTAL
+        client_id: gqLFZSRBoIDrCrpMjBkeCwNyloTFVEck
+        client_secret: kuhMtnmCEXGJcZeaYEVnPaRFOEItUrxujNzLRuBFVZVdmnscvoPmjTAMHKCVNIkM
+    TMS_ONEDRIVER:
+        # TMS_ONEDRIVER
+        client_id: HMWPVqRHCnDyKksczuQtvQuWvrppLhvX
+        client_secret: uhbELRfiRbwVYrXvlMuXYdNkGEwhHUBeLlcNZBXkAwxAbbyGonKWemgibKzBzrsb
+    DC_PORTAL:
+        # DC_PORTAL
+        client_id: PjogvUipEjtBvpysYneYUnksDoYDRjue
+        client_secret: lSwmuqbtbHcFhyWdLGihkVQrGzKrFiHlzcdBvsbMYBxkVfCxVFWyLyAwqiOvjgPA
+    1SEAL_M2M:
+        # 1SEAL_M2M
+        client_id: BOsxzRyQrbSeRorsKVLvhrVfyawEkXzW
+        client_secret: fjDFUaIPXHrDdLtGgkcbEhSQacdeLgWLOlRCpOzexKagFImsgHzzWiqqCZnIPPJY

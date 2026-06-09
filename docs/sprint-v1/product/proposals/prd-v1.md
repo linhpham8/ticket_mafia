@@ -1,0 +1,235 @@
+---
+status: APPROVED
+version: v1
+sprint: 1
+phase: product
+sprint_id: sprint-v1
+created: 2026-06-08
+updated: 2026-06-08 04:25
+approved_by: user
+approved_at: 2026-06-08T04:25:15Z
+applied_to_living: true 8225310878e8569297961fcc0ec8090f2034566d (sealed 2026-06-08 22:21)
+---
+
+# PRD Proposal — Sprint v1
+
+## New
+
+<!-- ID: PRD-OVERVIEW-001 -->
+### Product Overview
+
+#### 1. Executive Summary
+
+`ticket_mafia` is a demo app for selling football tickets online in Vietnam. It serves football fans who want to buy tickets before arriving at the stadium and ticket administrators who need to create matches, manage seat inventory, set prices, and confirm manual transfer payments.
+
+The product replaces on-site ticket purchase with an app-based flow: users log in, browse matches, select up to 5 concrete seats, hold those seats for 10 minutes, scan a configured bank-transfer QR, submit payment completion, and receive QR/e-tickets after admin confirmation. Gate usage is modeled through an API call that marks a ticket as scanned once.
+
+The expected v1 outcome is a clear end-to-end demo of online ticket purchase, admin confirmation, ticket issuance, and seat exchange. Production-grade payment gateway integration, high-traffic queueing, and detailed stadium gate operations are intentionally out of scope.
+
+#### 2. Problem Statement
+
+**Ai đang gặp vấn đề này?** Football fans currently have to buy tickets at the stadium, which creates friction before match day and does not demonstrate a modern online purchase experience. Ticket administrators also need a simple way to manage matches, price seats, and confirm purchases.
+
+**Cách xử lý hiện tại (workaround) là gì?** Users buy tickets offline at the stadium. Admin operations are assumed to be manual for demo purposes.
+
+**Chi phí của việc KHÔNG giải quyết?** The project cannot demonstrate mobile/web ticket purchase, seat holding, admin confirmation, QR/e-ticket issuance, or seat exchange. Quantified business impact is not required for this demo and is tracked as an open risk.
+
+#### 3. Goals & Success Metrics
+
+##### 3.1 Business Goals
+
+| Mục tiêu | KPI | Baseline | Target | Cách đo lường |
+|---|---|---|---|---|
+| Demonstrate online ticket purchase | End-to-end demo completion | Offline purchase only | User can complete login, seat selection, payment submission, admin confirmation, and ticket viewing in one demo flow | Manual demo script |
+| Demonstrate admin sales management | Admin task coverage | No defined admin flow | Admin can create/update match, configure seats/prices, and confirm/reject pending purchases | Manual demo script |
+
+##### 3.2 User Goals
+
+| Mục tiêu | KPI | Baseline | Target | Cách đo lường |
+|---|---|---|---|---|
+| Buy football tickets without going to the stadium | Purchase flow availability | Stadium purchase only | User can reserve seats and submit payment evidence in app/web | Manual observation |
+| Access issued tickets | Ticket retrieval | Physical/offline handling | User can open purchase history and view QR/e-ticket | Manual observation |
+
+#### 4. Business & Process Flows
+
+##### 4.1 Current State (AS-IS)
+
+**Các bên liên quan:** Football fan, stadium/ticket seller staff.
+
+**Các bước chính:**
+1. Fan goes to the stadium or offline selling point.
+2. Staff handles ticket availability and payment manually.
+3. Fan receives ticket outside the app.
+
+**Điểm đau / Bottleneck:**
+- User must buy in person.
+- The demo cannot show online seat selection, payment submission, or QR/e-ticket issuance.
+
+##### 4.2 Future State (TO-BE)
+
+**Các bên liên quan:** Football fan, ticket admin, gate scan API consumer.
+
+**Các bước chính:**
+1. Admin creates a match, configures stadium sections/floors/VIP seats, and sets active prices.
+2. User logs in with email or phone OTP, opens matches on sale, chooses up to 5 seat codes, and starts checkout.
+3. System holds selected seats for 10 minutes and shows the current default transfer QR.
+4. User completes transfer outside the system and taps payment completion.
+5. Admin confirms or rejects the pending purchase within 10 minutes.
+6. If confirmed, system issues QR/e-tickets; if rejected or expired, seats are released.
+7. User can view history, open QR/e-ticket details, and exchange to an equal-or-higher priced available seat.
+
+#### 5. Product Scope
+
+##### 5.1 In Scope
+
+- EP-001 Customer authentication with email or phone OTP.
+- EP-002 Match browsing and concrete seat selection.
+- EP-003 Manual transfer checkout with 10-minute seat hold.
+- EP-004 Admin match, seat, price, and transfer QR management.
+- EP-005 Admin payment confirmation and rejection.
+- EP-006 Ticket history, e-ticket detail, and one-time scan state.
+- EP-007 Seat exchange to equal-or-higher priced seats.
+
+##### 5.2 Out of Scope
+
+- Integrated payment gateway or automatic bank reconciliation.
+- Peak-load queue/waiting-room.
+- Fan club priority, membership, season tickets, discounts, or whitelist.
+- Full gate scanner app UX; v1 only needs an API-style status update.
+- Refund flow.
+- Transfer/resale of tickets between users.
+
+#### 6. Assumptions & Constraints
+
+##### 6.1 Assumptions
+
+| Giả định | Rủi ro nếu sai |
+|---|---|
+| Demo users accept manual transfer QR and admin confirmation instead of payment gateway | Architecture may need payment gateway integration and reconciliation later |
+| Admin confirmation within 10 minutes is operationally acceptable for demo | Real operations may need queueing, SLA, alerts, or automated payment verification |
+| Seat map can be generated from section, floor, and seat count rules | If real stadium layout is irregular, seat generation needs richer configuration |
+
+##### 6.2 Constraints & Target Platform
+
+**Target Platform:** iOS, Android, User Web, Admin Web.
+
+**Min Browser / OS:** Demo baseline; exact browser/OS matrix deferred to Design/Architecture.
+
+**Language:** Vietnamese.
+
+**Currency:** VND.
+
+##### 6.3 Open Risks
+
+| Risk | Why It Matters | Owner / Validator | Deadline / Trigger | Placeholder |
+|---|---|---|---|---|
+| Production NFR targets are not defined | Architecture cannot size peak-load, uptime, or latency for production | Product Owner / Tech Lead | Before Architecture if moving beyond demo | Demo only; no queue/waiting-room |
+| KPI baselines are not required for demo | Success measurement is manual and not business-metric driven | Product Owner | Before stakeholder rollout | Manual demo completion |
+| Real payment verification is out of scope | Admin confirmation may not be enough for real money operations | Product Owner / Finance owner | Before production payment scope | Manual QR transfer confirmation |
+
+#### 7. Industry-Common Surfaces
+
+| Tag | Surface | Product Decision | Trace |
+|---|---|---|---|
+| `[common]` | Ticketing lifecycle states | Confirmed lifecycle for match, seat, order/payment confirmation, ticket scan, and exchange. | BR-002, BR-005, BR-006, BR-007, BR-008 |
+| `[common]` | Temporary seat hold to avoid double sale | Confirmed 10-minute hold starts when user taps checkout/payment. | BR-002, FR-004, US-004 |
+| `[common]` | Stadium section/floor/seat inventory | Confirmed sections A/B/C/D, 2 floors per section, section A VIP area, generated concrete seat codes. | FR-003, FR-007, US-003, US-007 |
+| `[common]` | QR/e-ticket for stadium entry | Confirmed issued QR/e-ticket is visible from ticket detail. | FR-009, US-010 |
+| `[common]` | Purchase quantity limit / anti-scalping baseline | Confirmed maximum 5 seats per checkout; user may create additional orders. | BR-003, US-003 |
+| `[common]` | Exchange / change-seat handling | Confirmed exchange only to equal-or-higher priced available seats; higher price requires paying difference. | BR-007, FR-011, FR-012, US-012 |
+| `[common]` | Payment integration pattern | Confirmed no payment gateway in demo; use configured default manual transfer QR and admin confirmation. | FR-005, FR-008, US-005, US-008 |
+| `[niche]` | Season ticket, membership, fan priority, whitelist, discount scope | Rejected for v1; only per-match ticket sales are in scope. | PRD-OVERVIEW-001 §5.2 |
+| `[common]` | Peak-load / waiting-room consideration | Rejected for v1 because this is a demo; recorded as production NFR open risk. | PRD-OVERVIEW-001 §6.3 |
+| `[common]` | One-time QR scan behavior | Confirmed QR/e-ticket can be scanned once; full scanner app UI is out of scope. | BR-006, FR-010, US-011 |
+
+#### 8. Cross-Epic Dependencies
+
+| Source Epic | Depends On | Reason |
+|---|---|---|
+| EP-003 Manual transfer checkout | EP-001, EP-002, EP-004 | Checkout requires login, selected seats, active match, active prices, and default transfer QR |
+| EP-005 Admin confirmation | EP-003 | Admin confirms pending orders created by checkout |
+| EP-006 Ticket detail and scan | EP-005 | Tickets only exist after admin confirmation |
+| EP-007 Seat exchange | EP-003, EP-005, EP-006 | Exchange requires an issued ticket and uses a checkout-like confirmation flow |
+
+<!-- ID: BR-001 -->
+### BR-001: User must authenticate before purchase
+
+- **Entities liên quan**: User, Order, Ticket.
+- **Rule**: A user must log in with email or phone OTP before selecting seats for purchase or seat exchange.
+- **Ngoại lệ / Điều kiện xem xét lại**: Guest checkout is out of scope for v1.
+- **Trace**: FR-001, US-001, US-003, US-012.
+
+<!-- ID: BR-002 -->
+### BR-002: Seat hold starts at payment step and lasts 10 minutes
+
+- **Entities liên quan**: Seat, Order.
+- **Rule**: When a user taps checkout/payment, the selected seats move from `AVAILABLE` to `HELD` for 10 minutes.
+- **Invalid transitions**: Another user cannot select or hold a `HELD` seat.
+- **Timeout / expiry**: If the user does not submit payment completion within 10 minutes, the hold expires and seats return to `AVAILABLE`.
+- **Trace**: FR-003, FR-004, US-003, US-004.
+
+<!-- ID: BR-003 -->
+### BR-003: User can select at most 5 seats per purchase
+
+- **Entities liên quan**: User, Order, Seat.
+- **Rule**: A single checkout order can contain at most 5 seats.
+- **Ngoại lệ / Điều kiện xem xét lại**: The same user may create additional orders after completing or abandoning the prior order.
+- **Trace**: FR-003, US-003.
+
+<!-- ID: BR-004 -->
+### BR-004: Purchase price is snapshotted at checkout start
+
+- **Entities liên quan**: Seat, PriceVersion, Order.
+- **Rule**: The price attached to an order line is the active price at the moment the user taps checkout/payment.
+- **Invalid transitions**: Later admin price changes cannot alter existing held, pending, confirmed, or issued order prices.
+- **Trace**: FR-004, FR-007, US-004, US-007.
+
+<!-- ID: BR-005 -->
+### BR-005: Admin confirmation window controls ticket issuance
+
+- **Entities liên quan**: Order, Payment, Ticket, Seat.
+- **Rule**: After a user taps payment completion, the order becomes `PENDING_ADMIN_CONFIRM`. Admin has 10 minutes to confirm or reject.
+- **Valid transitions**: `PENDING_ADMIN_CONFIRM -> ISSUED` when admin confirms payment; `PENDING_ADMIN_CONFIRM -> REJECTED` when admin rejects; `PENDING_ADMIN_CONFIRM -> CANCELLED` when confirmation expires.
+- **Timeout / expiry**: If admin does not confirm within 10 minutes, the order is cancelled and seats return to `AVAILABLE`.
+- **Trace**: FR-005, FR-008, US-005, US-008.
+
+<!-- ID: BR-006 -->
+### BR-006: E-ticket QR can be scanned once
+
+- **Entities liên quan**: Ticket, QRCheckIn.
+- **Rule**: An issued QR/e-ticket can be successfully scanned one time only.
+- **Valid transitions**: `ISSUED -> USED/SCANNED`.
+- **Invalid transitions**: A `USED/SCANNED`, `CANCELLED`, or `EXCHANGED` ticket cannot be scanned successfully again.
+- **Trace**: FR-009, FR-010, US-010, US-011.
+
+<!-- ID: BR-007 -->
+### BR-007: Seat exchange only allows equal-or-higher priced available seats
+
+- **Entities liên quan**: Ticket, Seat, ExchangeOrder, Payment.
+- **Rule**: A user may exchange an issued ticket only to an available seat whose current price is equal to or higher than the existing ticket price.
+- **Payment rule**: If the new seat is more expensive, the user must transfer the price difference through the same manual QR confirmation flow.
+- **State rule**: The original ticket remains valid until admin confirms the exchange; after confirmation, the old ticket becomes `EXCHANGED` and its old seat returns to `AVAILABLE`.
+- **Trace**: FR-011, FR-012, US-012.
+
+<!-- ID: BR-008 -->
+### BR-008: Match and seat lifecycle rules
+
+- **Entities liên quan**: Match, Seat, Ticket, Order.
+- **Match states**: `OPEN_FOR_SALE -> SOLD_OUT`; `OPEN_FOR_SALE -> CANCELLED`; `OPEN_FOR_SALE -> CLOSED`.
+- **Seat / ticket states**: `AVAILABLE -> HELD -> PENDING_ADMIN_CONFIRM -> ISSUED -> USED/SCANNED`.
+- **Failure branches**: `HELD -> RELEASED/EXPIRED`; `PENDING_ADMIN_CONFIRM -> REJECTED/CANCELLED`; `ISSUED -> EXCHANGED`.
+- **Invalid transitions**: Users cannot buy seats for `SOLD_OUT`, `CANCELLED`, or `CLOSED` matches; unavailable seats cannot be selected.
+- **Trace**: FR-002, FR-003, FR-006, FR-008, FR-010, FR-012.
+
+## Updated
+
+## Removed
+
+### Self-Review Checklist
+
+- [x] `PROP-1`: Quality Contract refs satisfied: `DOC-1`, `DOC-2`, `DOC-3`, `LINK-1`, `LINK-2`, `ORB-1`
+- [x] `PROP-2`: Frontmatter required keys all present and well-formed
+- [x] `PROP-3`: `status` is DRAFT and `applied_to_living: false`
+- [x] `PROP-4`: `version` matches `v1`
+- [x] `PROP-5`: Each item starts with an ID anchor
+- [x] `PROP-17`: PRD proposal contains only `PRD-OVERVIEW` and `BR` items

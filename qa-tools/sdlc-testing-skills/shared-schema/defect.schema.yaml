@@ -1,0 +1,74 @@
+# defect.schema.yaml — v2.0
+# Schema cho defect/bug artifact
+# Dùng bởi: qa-core/09, 10, 13
+# AI: dùng schema này để validate bug table trong mọi report
+
+schema_version: "2.0"
+
+columns:
+  - name: Bug ID
+    type: string
+    required: true
+    pattern: "(BUG|UAT|SEC|PERF)-\\d+"
+    examples: ["BUG-001", "UAT-003", "SEC-01"]
+
+  - name: Mô tả ngắn
+    type: string
+    required: true
+    max_length: 150
+    note: "Action + actual result + expected result — không vượt quá 150 ký tự"
+
+  - name: Severity
+    type: enum
+    required: true
+    values: [S1, S2, S3, S4]
+    definitions:
+      S1: "Critical — Blocker, luồng core không hoạt động, không có workaround"
+      S2: "High — Tính năng bị ảnh hưởng nghiêm trọng, có workaround tạm"
+      S3: "Medium — Ảnh hưởng UX, không block luồng chính"
+      S4: "Low — Cosmetic, typo, minor visual"
+
+  - name: Priority
+    type: enum
+    required: true
+    values: [P1, P2, P3, P4]
+    definitions:
+      P1: "Fix trong ngày / ngay lập tức"
+      P2: "Fix trong sprint hiện tại"
+      P3: "Fix sprint sau hoặc backlog"
+      P4: "Backlog — fix khi có thời gian"
+
+  - name: Category
+    type: enum
+    required: true
+    values: [Functional, Visual, UX, Content, Performance, Console, Accessibility]
+
+  - name: Assigned
+    type: string
+    required: true
+    note: "Tên dev hoặc 'TBD' nếu chưa assign"
+
+  - name: Action
+    type: enum
+    required: true
+    values: ["Fix ngay", "Fix sprint", "Backlog", "Accept risk", "Won't fix", "Duplicate"]
+
+  - name: Trạng thái
+    type: enum
+    required: true
+    values: [Open, "In Progress", Fixed, Verified, Deferred, "Won't Fix", Duplicate]
+
+  - name: Run ID phát hiện
+    type: string
+    required: true
+    pattern: "\\d{2}/\\d{2}-R\\d+"
+    example: "15/05-R1"
+
+severity_rules:
+  - "S1 còn Open → KHÔNG deploy (go-no-go Gate 1 fail)"
+  - "S2 còn Open → Deploy cần risk acceptance bằng văn bản từ PO"
+  - "S3/S4 còn Open → Deploy được, ghi vào Known Issues"
+
+action_rules:
+  - "S1 → Action phải là 'Fix ngay', không được 'Backlog' hay 'Accept risk'"
+  - "'Accept risk' chỉ áp dụng S2 trở xuống, và phải có tên người chấp nhận"

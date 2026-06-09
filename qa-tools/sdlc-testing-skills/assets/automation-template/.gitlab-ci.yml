@@ -1,0 +1,33 @@
+stages:
+  - run_smoke_qc
+
+daily_qc_test:
+  stage: run_smoke_qc  # Changed from 'test' to 'run_smoke_qc'
+  image: asia-docker.pkg.dev/nexa-trusted-images-prod/docker-shared/python_3.11.auto:v1
+  # services:
+  #   - selenium/standalone-chrome
+  cache:
+    key: pip-cache
+    paths:
+      - ~/.cache/pip
+  only:
+    - master    
+  before_script:
+  #   - pip install robotframework-seleniumlibrary
+  #   - pip install robotframework
+  #   - pip install RESTinstance
+  #   - pip install robotframework-jsonlibrary
+  #   - pip install robotframework-pabot
+  #   - pip install robotframework-csvlibrary
+  script:
+    - echo "Run daily QC test placeholder"
+    # Dùng wrapper script để đảm bảo --outputdir đúng policy:
+    #   testing-output/reports/<yyyy-mm-dd>/<run-id>/
+    # KHÔNG chạy robot trực tiếp — sẽ sinh log.html/output.xml ở root
+    # - RUN_ID=$CI_PIPELINE_IID bash testing-output/automation/run_tests.sh Projects/ daily_qc staging
+    # - RUN_ID=$CI_PIPELINE_IID bash testing-output/automation/run_tests.sh Projects/IAC/IAC_01_Authentication.robot "IAC-01 AND Smoke" staging
+  artifacts:
+    when: always
+    paths:
+      - testing-output/reports/    # policy: testing-output/reports/<yyyy-mm-dd>/<run-id>/
+    expire_in: 1 week

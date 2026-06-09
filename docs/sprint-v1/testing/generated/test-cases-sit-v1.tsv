@@ -1,0 +1,27 @@
+						Hệ thống A			Hệ thống B									
+No	Testcase ID	Test Summary	Precondition	Test Data	Steps	Expected Result	Actual Result	Test Result	Expected Result	Actual Result	Test Result	Final Result	Priority	ID Bugs	Link evidence	Màn hình test	Thời gian test	Automation Level
+1	TC-011	[TL:integration] [US-004][AC-007][BVA+EP+DT+ST+DD] Checkout holds selected seats, snapshots prices, and moves to pending payment completion	- User selected available seats and sends a unique `Idempotency-Key`.	logged-in user, 1 and 5 available seat variants, default QR config, idempotency key	- User calls checkout, views QR page, then taps payment completed before expiry.	"- [ ] Order is created with status HELD/checkout-active.
+- [ ] Each order item stores checkout-time price snapshot.
+- [ ] Seats are unavailable to other users while held.
+- [ ] Payment-completed moves order to `PENDING_ADMIN_CONFIRM`.
+- [ ] QR config shown is the active default QR and total amount matches snapshots."							High					integration
+2	TC-013	[TL:integration] [US-008][AC-015][BVA+DT+ST] Admin confirms pending order within 10 minutes and issues tickets	- Order is `PENDING_ADMIN_CONFIRM` and not expired.	`PENDING_ADMIN_CONFIRM` order within confirmation window, admin session, idempotency key	- Admin confirms payment with `Idempotency-Key`.	"- [ ] Order becomes confirmed/issued.
+- [ ] Ticket records are created with status `ISSUED`.
+- [ ] Selected seats are no longer available for purchase.
+- [ ] Audit log records admin decision without sensitive transfer data."							High					integration
+3	TC-019	[TL:integration] [US-011][AC-021][EP+DT+ST+Security] First valid ticket scan marks ticket USED/SCANNED	- Ticket is `ISSUED` and has not been scanned.	valid signed QR token for `ISSUED` ticket, idempotency key	- Scan consumer calls `POST /api/v1/tickets/scan` with valid token and `Idempotency-Key`.	"- [ ] Response is successful and reports scanned/used.
+- [ ] Ticket status changes to `USED/SCANNED`.
+- [ ] Scan event/audit evidence is created without PII."							High					integration
+4	TC-021	[TL:integration] [US-012][AC-023][BVA+EP+DT+ST] Higher-priced exchange checkout holds new seat and charges difference	- User owns an `ISSUED` ticket and selects an available higher-priced replacement seat.	issued ticket price 100000, replacement available seat price 150000, default QR	- User starts exchange checkout with `Idempotency-Key`.	"- [ ] Replacement seat is held for 10 minutes.
+- [ ] Amount due equals replacement price minus original ticket price.
+- [ ] Old ticket remains `ISSUED` until admin confirms exchange.
+- [ ] Default QR is shown for the difference amount."							High					integration
+5	TC-022	[TL:integration] [US-012][AC-023][BVA+DT+ST] Admin confirms exchange and retires old ticket	- Exchange order is pending admin confirmation.	pending exchange order within confirmation window, admin session, idempotency key	- Admin confirms exchange payment.	"- [ ] New ticket is issued for replacement seat.
+- [ ] Old ticket becomes `EXCHANGED`.
+- [ ] Old seat returns to `AVAILABLE`.
+- [ ] Replacement seat is no longer available.
+- [ ] Audit/event evidence records exchange confirmation."							High					integration
+6	TC-023	[TL:integration] [NFR-002][Performance+CornerCase] Concurrent checkout permits only one active hold per seat	- The same seat is `AVAILABLE` and two users attempt checkout concurrently.	one open match, one available target seat, two authenticated users, two idempotency keys	- Both users submit `POST /api/v1/orders/checkout` for the same seat at the same time.	"- [ ] Exactly one checkout succeeds.
+- [ ] Exactly one active order_item/hold exists for the seat.
+- [ ] Losing request receives conflict error.
+- [ ] Under 50 concurrent demo browse/seat/checkout-smoke requests, API p95 is recorded and target is <= 800ms excluding cold start."							High					integration

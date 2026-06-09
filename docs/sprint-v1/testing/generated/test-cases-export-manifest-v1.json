@@ -1,0 +1,36 @@
+{
+  "counts": {
+    "functional_cases": 18,
+    "sit_cases": 6,
+    "total_cases": 24
+  },
+  "exporter": "core/tools/export_test_cases.py",
+  "exporter_version": "1.1.0",
+  "functional_column_count": 17,
+  "functional_header": [
+    "STT",
+    "Summary",
+    "Test Level",
+    "Precondition",
+    "Test Data",
+    "Step summary",
+    "Expected result",
+    "Priority",
+    "Story Linkages",
+    "Test Type",
+    "Smoke",
+    "Auto",
+    "Phụ thuộc TC",
+    "Teardown",
+    "Trace",
+    "Design Refs",
+    "API Refs"
+  ],
+  "outputs": {
+    "functional": "docs/sprint-v1/testing/generated/test-cases-functional-v1.tsv",
+    "sit": "docs/sprint-v1/testing/generated/test-cases-sit-v1.tsv"
+  },
+  "schema": "prism.test_case_export_manifest.v1",
+  "source_file": "docs/sprint-v1/testing/proposals/test-cases-v1.md",
+  "source_sha256": "99a438ecc94362839fb5caa761cae886bfe55f012fc76824ca9cb0aff76f9606"
+}

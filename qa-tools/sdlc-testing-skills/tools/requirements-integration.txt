@@ -1,0 +1,7 @@
+requests
+beautifulsoup4
+markdownify
+markdown
+Pillow
+pytesseract
+python-dotenv

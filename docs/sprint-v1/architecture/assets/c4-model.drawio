@@ -1,0 +1,27 @@
+<mxfile host="app.diagrams.net">
+  <diagram id="c4-ticket-mafia" name="C4 Ticket Mafia">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="u" value="Football Fan&#xa;iOS / Android / Web" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1"><mxGeometry x="40" y="80" width="160" height="70" as="geometry"/></mxCell>
+        <mxCell id="a" value="Ticket Admin&#xa;Admin Web" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1"><mxGeometry x="40" y="210" width="160" height="70" as="geometry"/></mxCell>
+        <mxCell id="s" value="Gate Scan API Consumer" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1"><mxGeometry x="40" y="340" width="160" height="70" as="geometry"/></mxCell>
+        <mxCell id="sys" value="Ticket Mafia Platform&#xa;Online football ticket sales demo" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="320" y="70" width="520" height="360" as="geometry"/></mxCell>
+        <mxCell id="web" value="User Website&#xa;Next.js + Tailwind" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1"><mxGeometry x="360" y="120" width="180" height="70" as="geometry"/></mxCell>
+        <mxCell id="admin" value="Admin Web&#xa;Next.js + Tailwind" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1"><mxGeometry x="580" y="120" width="180" height="70" as="geometry"/></mxCell>
+        <mxCell id="app" value="Mobile App&#xa;Flutter" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1"><mxGeometry x="360" y="220" width="180" height="70" as="geometry"/></mxCell>
+        <mxCell id="api" value="Backend API&#xa;Spring Boot modular monolith" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="580" y="220" width="180" height="70" as="geometry"/></mxCell>
+        <mxCell id="db" value="PostgreSQL&#xa;Transactional data" style="shape=cylinder;whiteSpace=wrap;html=1;" vertex="1" parent="1"><mxGeometry x="580" y="330" width="180" height="70" as="geometry"/></mxCell>
+        <mxCell id="e1" value="browse / buy tickets" style="endArrow=block;html=1;rounded=0;jumpStyle=arc;" edge="1" parent="1" source="u" target="web"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e2" value="operate sales" style="endArrow=block;html=1;rounded=0;jumpStyle=arc;" edge="1" parent="1" source="a" target="admin"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e3" value="scan update" style="endArrow=block;html=1;rounded=0;jumpStyle=arc;" edge="1" parent="1" source="s" target="api"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e4" value="REST /api/v1" style="endArrow=block;html=1;rounded=0;jumpStyle=arc;" edge="1" parent="1" source="web" target="api"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e5" value="REST /api/v1" style="endArrow=block;html=1;rounded=0;jumpStyle=arc;" edge="1" parent="1" source="admin" target="api"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e6" value="REST /api/v1" style="endArrow=block;html=1;rounded=0;jumpStyle=arc;" edge="1" parent="1" source="app" target="api"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e7" value="SQL transactions" style="endArrow=block;html=1;rounded=0;jumpStyle=arc;" edge="1" parent="1" source="api" target="db"><mxGeometry relative="1" as="geometry"/></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
+

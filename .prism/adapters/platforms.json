@@ -1,0 +1,114 @@
+{
+  "_comment": "Declarative platform registry for PRISM adapters. Source of truth for setup.sh, setup.ps1, and generate_adapters.py. Adding a new platform = adding an entry here.",
+  "_schema": {
+    "key": "stable identifier used in --platform flag",
+    "label": "human-readable name",
+    "dest": "destination path relative to project root where the main adapter is installed",
+    "legacy_dests": "optional list of legacy dest paths to detect and remove on upgrade",
+    "guided_filename": "filename inside adapters/<adapter_subdir>/ for guided mode",
+    "freedom_filename": "filename inside adapters/<adapter_subdir>/ for freedom mode",
+    "adapter_subdir": "directory under adapters/ where generated outputs land",
+    "shares_dest_with": "optional key — if present, this platform's content is identical to that platform; only one will be installed when dest collides",
+    "frontmatter": "optional YAML frontmatter block prepended to the generated source file (used by Cursor .mdc to declare activation mode)",
+    "size_warning_chars": "optional integer — if set, setup.sh prints a warning when the generated source exceeds this many characters (used by Windsurf which truncates at 12,000)"
+  },
+  "platforms": [
+    {
+      "key": "claude",
+      "label": "Claude",
+      "dest": "CLAUDE.md",
+      "adapter_subdir": "claude",
+      "guided_filename": "CLAUDE.md",
+      "freedom_filename": "system-prompt-freedom.md"
+    },
+    {
+      "key": "copilot",
+      "label": "GitHub Copilot",
+      "dest": ".github/copilot-instructions.md",
+      "adapter_subdir": "copilot",
+      "guided_filename": "copilot-instructions.md",
+      "freedom_filename": "copilot-instructions-freedom.md"
+    },
+    {
+      "key": "codex",
+      "label": "OpenAI Codex",
+      "dest": "AGENTS.md",
+      "adapter_subdir": "codex",
+      "guided_filename": "AGENTS.md",
+      "freedom_filename": "AGENTS-freedom.md"
+    },
+    {
+      "key": "cursor",
+      "label": "Cursor",
+      "dest": ".cursor/rules/prism.mdc",
+      "legacy_dests": [".cursorrules"],
+      "adapter_subdir": "cursor",
+      "guided_filename": "CURSORRULES.md",
+      "freedom_filename": "CURSORRULES-freedom.md",
+      "frontmatter": {
+        "description": "PRISM SDLC framework rules and conventions",
+        "alwaysApply": true
+      }
+    },
+    {
+      "key": "gemini",
+      "label": "Gemini CLI",
+      "dest": "GEMINI.md",
+      "adapter_subdir": "gemini",
+      "guided_filename": "GEMINI.md",
+      "freedom_filename": "GEMINI-freedom.md"
+    },
+    {
+      "key": "windsurf",
+      "label": "Windsurf",
+      "dest": ".windsurf/rules/prism.md",
+      "adapter_subdir": "windsurf",
+      "guided_filename": "windsurf-rules.md",
+      "freedom_filename": "windsurf-rules-freedom.md",
+      "size_warning_chars": 12000
+    },
+    {
+      "key": "roo",
+      "label": "Roo Code",
+      "dest": ".roo/rules/prism.md",
+      "adapter_subdir": "roo",
+      "guided_filename": "roo-rules.md",
+      "freedom_filename": "roo-rules-freedom.md"
+    },
+    {
+      "key": "trae",
+      "label": "Trae",
+      "dest": ".trae/rules/project_rules.md",
+      "adapter_subdir": "trae",
+      "guided_filename": "trae-rules.md",
+      "freedom_filename": "trae-rules-freedom.md"
+    },
+    {
+      "key": "kiro",
+      "label": "Kiro CLI",
+      "dest": "AGENTS.md",
+      "adapter_subdir": "kiro",
+      "guided_filename": "AGENTS.md",
+      "freedom_filename": "AGENTS-freedom.md",
+      "shares_dest_with": "codex"
+    },
+    {
+      "key": "opencode",
+      "label": "OpenCode",
+      "dest": "AGENTS.md",
+      "adapter_subdir": "opencode",
+      "guided_filename": "AGENTS.md",
+      "freedom_filename": "AGENTS-freedom.md",
+      "shares_dest_with": "codex"
+    },
+    {
+      "key": "antigravity",
+      "label": "Antigravity",
+      "dest": "AGENTS.md",
+      "adapter_subdir": "antigravity",
+      "guided_filename": "AGENTS.md",
+      "freedom_filename": "AGENTS-freedom.md",
+      "shares_dest_with": "codex"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+# PRISM Phase 2 tooling dependencies.
+#
+# Required by:
+#   core/tools/apply_proposal.py
+#   core/tools/effective_truth.py
+#   core/tools/get_next_id.py
+#   core/tools/scan_drift.py
+#   core/tools/seal_sprint.py
+#   core/tools/validate_proposal.py
+#
+# Install: pip install -r .prism/requirements.txt (run once after setup.sh).
+# Documented in README.md § "What setup creates" and the 2.0.0 release notes
+# (CHANGELOG.md § Migration step 5).
+
+pyyaml>=6.0

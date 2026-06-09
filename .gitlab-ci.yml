@@ -1,0 +1,15 @@
+# GitLab CI — AI Code Review
+# File này đặt ở GỐC repo (khác GitHub: không nằm trong thư mục con).
+# Trigger: chỉ chạy khi pipeline đến từ một Merge Request.
+
+ai_code_review:
+  image: python:3.12
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+  variables:
+    # GitLab tự cấp CI_PROJECT_ID, CI_MERGE_REQUEST_IID, CI_API_V4_URL.
+    # GITLAB_TOKEN và ANTHROPIC_API_KEY: tự thêm ở Settings > CI/CD > Variables.
+    GIT_DEPTH: "0"
+  script:
+    - pip install -r requirements.txt
+    - python review_agent.py --platform gitlab

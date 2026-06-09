@@ -130,7 +130,39 @@ Và comment inline ngay tại dòng tương ứng, kèm gợi ý sửa.
 
 ---
 
-## 5. Giới hạn & hướng mở rộng
+## 5. Chặn merge (merge gate)
+
+Quy tắc: nếu agent phát hiện **bug / bảo mật / hiệu năng** → **chặn merge**. Nếu chỉ có **coding convention** → **cho phép merge** (chỉ là góp ý).
+
+Việc này gồm **2 phần**, phải có cả hai mới chặn được thật:
+
+### Phần 1 — Code (đã làm sẵn)
+`review_agent.py` luôn đăng đầy đủ comment, rồi **thoát với mã lỗi** theo phán quyết:
+- Có finding thuộc nhóm chặn → `exit 1` → job CI **fail** (check đỏ).
+- Chỉ convention / không có gì → `exit 0` → job **pass** (check xanh).
+
+Nhóm chặn mặc định là `bug,security,performance`, đổi được bằng biến môi trường:
+```bash
+REVIEW_BLOCKING_CATEGORIES="bug,security"   # ví dụ: bỏ performance khỏi nhóm chặn
+```
+
+### Phần 2 — Cấu hình nền tảng (BẮT BUỘC, phải tự bật)
+Chỉ `exit 1` thôi thì check đỏ **nhưng nút merge vẫn bấm được**. Muốn chặn thật:
+
+**GitHub** — Settings → **Branches** → **Add branch protection rule**:
+1. Branch name pattern: `main` (nhánh cần bảo vệ).
+2. Tích **Require status checks to pass before merging**.
+3. Tìm và chọn check **AI Code Review** vào danh sách required.
+→ Từ đó, PR nào check đỏ sẽ bị khoá nút merge.
+
+**GitLab** — Settings → **Merge requests** → tích **Pipelines must succeed**.
+→ MR nào pipeline fail sẽ không merge được.
+
+> Tóm lại: code quyết định *đỏ hay xanh*; cấu hình nền tảng quyết định *đỏ thì có chặn hay không*.
+
+---
+
+## 6. Giới hạn & hướng mở rộng
 
 Bản này đã tách 4 agent chuyên biệt và hỗ trợ cả GitHub lẫn GitLab. Có thể nâng cấp tiếp:
 - **Thêm bước verify** — hỏi lại LLM "đây có thật sự là lỗi không?" để giảm false positive (cách Anthropic & Cursor BugBot làm).
@@ -141,7 +173,7 @@ Bản này đã tách 4 agent chuyên biệt và hỗ trợ cả GitHub lẫn Gi
 
 ---
 
-## 6. Công nghệ
+## 7. Công nghệ
 
 - **Python 3.12**
 - **Anthropic Claude API** (`claude-sonnet-4-6`, đổi được sang `claude-opus-4-8`)

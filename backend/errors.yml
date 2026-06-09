@@ -1,0 +1,172 @@
+version: 1
+service: ticket-mafia-backend
+codes:
+  - code: AUTH_IDENTIFIER_INVALID
+    http_status: 400
+    message_key: errors.auth.identifier_invalid
+    description: Identifier is empty, too long, or not an email/Vietnam-like phone number.
+    retryable: false
+    category: auth
+  - code: AUTH_CHALLENGE_INVALID
+    http_status: 400
+    message_key: errors.auth.challenge_invalid
+    description: Challenge ID or OTP format is malformed.
+    retryable: false
+    category: auth
+  - code: AUTH_UNAUTHORIZED
+    http_status: 401
+    message_key: errors.auth.unauthorized
+    description: Authentication is required or the session is invalid.
+    retryable: false
+    category: auth
+  - code: AUTH_OTP_INVALID
+    http_status: 401
+    message_key: errors.auth.otp_invalid
+    description: OTP is wrong or expired.
+    retryable: true
+    category: auth
+  - code: AUTH_FORBIDDEN
+    http_status: 403
+    message_key: errors.auth.forbidden
+    description: Authenticated user is not allowed to continue.
+    retryable: false
+    category: auth
+  - code: AUTH_CHALLENGE_NOT_FOUND
+    http_status: 404
+    message_key: errors.auth.challenge_not_found
+    description: OTP challenge does not exist.
+    retryable: false
+    category: auth
+  - code: AUTH_CHALLENGE_USED
+    http_status: 409
+    message_key: errors.auth.challenge_used
+    description: OTP challenge was already consumed.
+    retryable: false
+    category: auth
+  - code: ADMIN_MATCH_INVALID_REQUEST
+    http_status: 400
+    message_key: errors.admin.match_invalid_request
+    description: Admin match request body or idempotency header is malformed.
+    retryable: false
+    category: admin
+  - code: ADMIN_FORBIDDEN
+    http_status: 403
+    message_key: errors.admin.forbidden
+    description: Authenticated user is not an admin.
+    retryable: false
+    category: admin
+  - code: MATCH_NOT_FOUND
+    http_status: 404
+    message_key: errors.match.not_found
+    description: Match does not exist.
+    retryable: false
+    category: inventory
+  - code: MATCH_DUPLICATE
+    http_status: 409
+    message_key: errors.match.duplicate
+    description: A match with the same business key already exists.
+    retryable: false
+    category: inventory
+  - code: MATCH_NOT_OPEN_FOR_SALE
+    http_status: 409
+    message_key: errors.match.not_open_for_sale
+    description: Match status does not allow a new purchase.
+    retryable: false
+    category: inventory
+  - code: SEAT_GENERATE_INVALID_REQUEST
+    http_status: 400
+    message_key: errors.seat.generate_invalid_request
+    description: Seat generation request body or idempotency header is malformed.
+    retryable: false
+    category: inventory
+  - code: SEATS_ALREADY_EXIST
+    http_status: 409
+    message_key: errors.seat.already_exist
+    description: Seats already exist for the requested match section/floor/VIP slice.
+    retryable: false
+    category: inventory
+  - code: PRICE_INVALID_REQUEST
+    http_status: 400
+    message_key: errors.price.invalid_request
+    description: Price request body or idempotency header is malformed.
+    retryable: false
+    category: pricing
+  - code: MATCH_PRICE_LOCKED
+    http_status: 409
+    message_key: errors.price.match_locked
+    description: Price cannot be changed for a closed or cancelled match.
+    retryable: false
+    category: pricing
+  - code: QR_CONFIG_INVALID_REQUEST
+    http_status: 400
+    message_key: errors.qr.invalid_request
+    description: QR config request is malformed.
+    retryable: false
+    category: payment
+  - code: ADMIN_DECISION_INVALID_REQUEST
+    http_status: 400
+    message_key: errors.admin.decision_invalid_request
+    description: Admin order decision request body or idempotency header is malformed.
+    retryable: false
+    category: admin
+  - code: ORDER_NOT_PENDING_CONFIRM
+    http_status: 409
+    message_key: errors.order.not_pending_confirm
+    description: Admin decision attempted outside pending confirmation state or after confirmation expiry.
+    retryable: false
+    category: order
+  - code: EXCHANGE_INVALID_REQUEST
+    http_status: 400
+    message_key: errors.exchange.invalid_request
+    description: Exchange checkout request body or idempotency header is malformed.
+    retryable: false
+    category: exchange
+  - code: TICKET_OR_SEAT_NOT_FOUND
+    http_status: 404
+    message_key: errors.exchange.ticket_or_seat_not_found
+    description: The source ticket or replacement seat does not exist.
+    retryable: false
+    category: exchange
+  - code: EXCHANGE_STATE_CONFLICT
+    http_status: 409
+    message_key: errors.exchange.state_conflict
+    description: Source ticket or replacement seat state does not allow exchange.
+    retryable: false
+    category: exchange
+  - code: EXCHANGE_CHEAPER_SEAT_NOT_ALLOWED
+    http_status: 422
+    message_key: errors.exchange.cheaper_seat_not_allowed
+    description: Replacement seat is cheaper than the current issued ticket seat.
+    retryable: false
+    category: exchange
+  - code: EXCHANGE_DECISION_INVALID_REQUEST
+    http_status: 400
+    message_key: errors.exchange.decision_invalid_request
+    description: Admin exchange decision request body or idempotency header is malformed.
+    retryable: false
+    category: exchange
+  - code: EXCHANGE_NOT_PENDING_CONFIRM
+    http_status: 409
+    message_key: errors.exchange.not_pending_confirm
+    description: Exchange order is not pending admin confirmation or has expired.
+    retryable: false
+    category: exchange
+  - code: RATE_LIMITED
+    http_status: 429
+    message_key: errors.rate_limited
+    description: Caller exceeded the configured auth request or verification limit.
+    retryable: true
+    retry_after_header: true
+    category: throttling
+  - code: VALIDATION_ERROR
+    http_status: 422
+    message_key: errors.validation
+    description: Request schema validation failed.
+    retryable: false
+    category: validation
+  - code: INTERNAL_ERROR
+    http_status: 500
+    message_key: errors.internal
+    description: Unexpected server error.
+    retryable: false
+    category: platform

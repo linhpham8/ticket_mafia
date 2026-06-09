@@ -1,0 +1,99 @@
+# report.schema.yaml — v2.0
+# Schema cho report artifacts
+# Dùng bởi: qa-core/09, 10, 13, 14
+# Source of truth: references/report-template.md
+
+schema_version: "2.0"
+
+run_result_manifest:
+  description: "YAML block bắt buộc trong mỗi daily report và sprint report"
+  required_keys:
+    run_id:
+      type: string
+      pattern: "\\d{2}/\\d{2}/\\d{4}-R\\d+"
+      example: "15/05/2026-R1"
+    run_type:
+      type: enum
+      values: [Full, Re-run, Smoke]
+    artifact_version:
+      type: string
+      pattern: "\\d+\\.\\d+\\.\\d+"
+      example: "1.0.0"
+    timestamp:
+      type: string
+      format: "yyyy-mm-dd HH:mm"
+    result:
+      type: enum
+      values: [SUCCESS, PARTIAL, FAILED, BLOCKED]
+      definitions:
+        SUCCESS: "Pass rate ≥ exit criteria, không có S1 open"
+        PARTIAL: "Pass rate < exit criteria HOẶC có S1 open đang fix"
+        FAILED: "Pass rate << exit criteria, nhiều S1/S2 open"
+        BLOCKED: "Không thể test do môi trường / dependency"
+    metrics:
+      type: object
+      required_fields: [pass_rate_pct, health_score, tc_pass, tc_fail, tc_blocked, tc_not_run]
+    bug_summary:
+      type: object
+      required_fields: [s1_open, s2_open, s3_open, s4_open, total_open, total_fixed]
+    report_files:
+      type: array
+      note: "Paths đến tất cả file output (md, html, yaml)"
+
+health_score:
+  description: "Tổng điểm 100 — tính từ 8 hạng mục theo trọng số"
+  formula: "sum(category_score * weight)"
+  categories:
+    Functional:
+      weight: 0.20
+      max_score: 100
+      deduction_rules:
+        - "S1 bug: -15 điểm mỗi bug"
+        - "S2 bug: -8 điểm mỗi bug"
+        - "S3 bug: -3 điểm mỗi bug"
+    Console:
+      weight: 0.15
+      max_score: 100
+    UX:
+      weight: 0.15
+      max_score: 100
+    Accessibility:
+      weight: 0.15
+      max_score: 100
+    Visual:
+      weight: 0.10
+      max_score: 100
+    Performance:
+      weight: 0.10
+      max_score: 100
+    Links:
+      weight: 0.10
+      max_score: 100
+      note: "Nếu không test link checking → điểm = 100 (không trừ điểm)"
+    Content:
+      weight: 0.05
+      max_score: 100
+
+sprint_report_required_sections:
+  - "Executive Summary"
+  - "Kết quả tổng hợp (bảng số liệu)"
+  - "Defect Analysis (theo severity + category)"
+  - "Coverage delta (so với plan)"
+  - "Risk và recommendations"
+  - "Ship Readiness verdict"
+  - "improvement_snapshot (YAML block)"
+
+go_no_go_gates:
+  gate_1_quality:
+    required_fields: [pass_rate, health_score, s1_open, s2_open, tc_not_run]
+  gate_2_uat:
+    conditional: "uat.required = true"
+    required_fields: [sign_off_status, uat_s1_open]
+  gate_3_security:
+    conditional: "security test performed"
+    required_fields: [sec_s1_open, sec_s2_open]
+  gate_4_performance:
+    conditional: "performance test performed"
+    required_fields: [p95_ms, error_rate_pct]
+  gate_5_deploy_readiness:
+    required_fields: [release_notes, rollback_plan, monitoring_ready]

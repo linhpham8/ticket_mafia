@@ -1,0 +1,8 @@
+﻿# qa-config.yaml — Project Configuration
+# Generate this file using skill 02 (Master Test Plan)
+# See references/qa-config-schema.yaml for full schema
+
+# project:
+#   name: your-project-name
+#   sprint: S1
+#   domain: your-domain

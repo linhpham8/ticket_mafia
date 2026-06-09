@@ -1,0 +1,5 @@
+--variablefile Variables\ENV_UAT.py
+--include=file201ORfile202ORfile203ORfile204
+--variable RUNNING_ON_JENKIN:Y
+--variable SLACK_SEND_MESSAGES:Y
+--outputdir Report

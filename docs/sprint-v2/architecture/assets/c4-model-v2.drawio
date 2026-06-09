@@ -1,0 +1,28 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Sprint v2 C4">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="actor-fan" value="Football Fan Buyer" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1"><mxGeometry x="40" y="80" width="160" height="60" as="geometry"/></mxCell>
+        <mxCell id="actor-admin" value="Ticket Sales Admin" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1"><mxGeometry x="40" y="220" width="160" height="60" as="geometry"/></mxCell>
+        <mxCell id="user-web" value="User Website&#xa;Next.js + Tailwind&#xa;Read fallback gate" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1"><mxGeometry x="300" y="70" width="190" height="90" as="geometry"/></mxCell>
+        <mxCell id="admin-web" value="Admin Web&#xa;Next.js + Tailwind" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1"><mxGeometry x="300" y="220" width="190" height="70" as="geometry"/></mxCell>
+        <mxCell id="backend" value="Backend API&#xa;Spring Boot Modular Monolith" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1"><mxGeometry x="600" y="120" width="230" height="100" as="geometry"/></mxCell>
+        <mxCell id="db" value="PostgreSQL&#xa;Source of truth" style="shape=partialRectangle;whiteSpace=wrap;html=1;right=0;left=0;" vertex="1" parent="1"><mxGeometry x="950" y="145" width="180" height="80" as="geometry"/></mxCell>
+        <mxCell id="fallback" value="Local Demo Dataset&#xa;display only" style="shape=partialRectangle;whiteSpace=wrap;html=1;right=0;left=0;" vertex="1" parent="1"><mxGeometry x="600" y="300" width="210" height="70" as="geometry"/></mxCell>
+        <mxCell id="auth" value="Auth Module" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1"><mxGeometry x="610" y="440" width="130" height="50" as="geometry"/></mxCell>
+        <mxCell id="inventory" value="Match &amp; Inventory Module" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1"><mxGeometry x="760" y="440" width="170" height="50" as="geometry"/></mxCell>
+        <mxCell id="order" value="Order &amp; Payment Module" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1"><mxGeometry x="950" y="440" width="170" height="50" as="geometry"/></mxCell>
+        <mxCell id="ticket" value="Ticket &amp; Scan Module" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1"><mxGeometry x="1140" y="440" width="160" height="50" as="geometry"/></mxCell>
+        <mxCell id="e1" value="browse/buy" style="endArrow=block;html=1;rounded=0;jumpStyle=arc;" edge="1" parent="1" source="actor-fan" target="user-web"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e2" value="operate" style="endArrow=block;html=1;rounded=0;jumpStyle=arc;" edge="1" parent="1" source="actor-admin" target="admin-web"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e3" value="/api/v1 via rewrite" style="endArrow=block;html=1;rounded=0;jumpStyle=arc;" edge="1" parent="1" source="user-web" target="backend"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e4" value="/api/v1/admin" style="endArrow=block;html=1;rounded=0;jumpStyle=arc;" edge="1" parent="1" source="admin-web" target="backend"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e5" value="SQL" style="endArrow=block;html=1;rounded=0;jumpStyle=arc;" edge="1" parent="1" source="backend" target="db"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e6" value="local/dev fallback read" style="endArrow=block;html=1;rounded=0;jumpStyle=arc;" edge="1" parent="1" source="user-web" target="fallback"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e7" value="module boundary" style="endArrow=block;html=1;rounded=0;jumpStyle=arc;" edge="1" parent="1" source="backend" target="inventory"><mxGeometry relative="1" as="geometry"/></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

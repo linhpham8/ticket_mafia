@@ -1,0 +1,268 @@
+# ============================================================
+# QA CONFIG — [Tên dự án] | [Sprint]
+# Được sinh tự động bởi skill 01.1 từ Test Plan
+# Dùng làm nguồn config chuẩn cho toàn bộ bộ skill; mỗi skill chỉ đọc các field liên quan khi cần
+# ============================================================
+
+project:
+  name: <Chuyển tiền quốc tế>
+  code: <mã dự án, ví dụ BM — dùng làm prefix TC ID, bug ID>
+  sprint: <Sprint-XX>
+  domain: <fintech>
+  architecture: <api-only|UI-web|AI-based>
+
+# ── TEAM ────────────────────────────────────────────────────
+# Dùng bởi: skill 01 (test plan), skill 08 (report), skill 09 (demo)
+team:
+  qc_lead: <tên QC Lead>
+  qc_engineers:
+    - <tên QC 1>
+    - <tên QC 2>
+  dev_lead: <tên Dev Lead>        # optional
+  pm: <tên PM/PO>                 # optional
+
+# ── ENVIRONMENTS ────────────────────────────────────────────
+# Dùng bởi: skill 01, 06, 09, 10, 11, 12, 14
+environments:
+  staging:
+    url: <https://staging.example.com>
+    auth_required: <true|false>
+  uat:                            # optional
+    url: <https://uat.example.com>
+    auth_required: <true|false>
+  production:                     # optional — chỉ dùng cho skill 14
+    url: <https://example.com>
+
+# ── REQUIREMENT SOURCES (optional) ─────────────────────────
+# Dùng bởi: skill 02, 03, 04 khi cần đọc requirement trực tiếp từ nguồn ngoài workspace
+# LƯU Ý: Không lưu secret/token trực tiếp trong file này. Chỉ tham chiếu tên env var hoặc secret key.
+requirement_sources:
+  primary: <workspace-file|confluence>
+  confluence:                           # optional — chỉ cần khi primary: confluence
+    enabled: <true|false>
+    base_url: <https://your-company.atlassian.net/wiki>
+    auth:
+      method: api_token                 # mặc định cố định — không dùng browser_session hay mcp
+      env_file: <.env.secrets>
+      user_env: <ATLASSIAN_USER_EMAIL>
+      token_env: <ATLASSIAN_API_TOKEN>  # bắt buộc khi method=api_token
+    scope:
+      page_tree_mode: target-parent-siblings  # mặc định — đọc trang mục tiêu + cha + anh em
+      read_ancestors: <true|false>
+      read_siblings: <true|false>
+      max_pages: <số, ví dụ 20>
+    targeting:
+      default_space_key: <HO>
+      allowed_page_ids:
+        - <3596058625>
+      default_section_anchor: <US7>
+    fetch:
+      timeout_sec: <số, ví dụ 30>
+      retry_count: <số, ví dụ 2>
+      include_comments: <true|false>
+      mode: <direct|snapshot>           # mặc định: direct (không tạo snapshot .md)
+      read_image_attachments: <true|false>     # mặc định: true
+      attachment_ocr_lang: <vie+eng>    # OCR language cho ảnh đính kèm
+      attachment_max_images: <số, ví dụ 20>   # số ảnh tối đa đọc/OCR mỗi page
+      expand_fields:
+        - <body.storage>
+        - <version>
+        - <history>
+    fallback:
+      use_workspace_file_if_unreachable: <true|false>
+      local_requirement_paths:
+        - <project/requirement/module/requirement.md>
+
+# ── TEST ACCOUNTS ───────────────────────────────────────────
+# Dùng bởi: skill 06, 09, 10, 12, 14
+# LƯU Ý: Không lưu password vào file này — dùng secrets manager
+test_accounts:
+  - role: admin
+    username: <qa.admin@example.com>
+    note: <mô tả quyền hạn>
+  - role: user
+    username: <qa.user@example.com>
+    note: <mô tả quyền hạn>
+  # Thêm role khác nếu cần: readonly, manager, guest...
+
+# ── TOOLS ───────────────────────────────────────────────────
+# Dùng bởi: skill 02, 03, 04, 06, 07, 08, 11
+tools:
+  test_management: <qmetry|jira|testng|testlink|azure-devops|other>
+  bug_tracker: <jira|azure-devops|github-issues|other>
+  atlassian:
+    base_url_env: <ATLASSIAN_BASE_URL>
+    email_env: <ATLASSIAN_EMAIL>
+    token_env: <ATLASSIAN_API_TOKEN>
+    confluence_space_key_env: <CONFLUENCE_SPACE_KEY>
+    jira_project_key_env: <JIRA_PROJECT_KEY>
+  qmetry:
+    config_file: <tools/qmetry-config.json>
+    token_env: <QMETRY_API_TOKEN>
+  automation:
+    ui:
+      - <playwright|cypress|selenium|robotframework>
+    api:
+      - <pytest|restassured|postman-newman|robotframework>
+    performance: <jmeter|artillery|locust|none>
+  communication:
+    channel: <#slack-channel hoặc Teams channel>
+    escalation: <#channel hoặc email escalation>
+
+# ── SCOPE ───────────────────────────────────────────────────
+# Dùng bởi: skill 01, 02, 03, 04, 07, 15
+scope:
+  type: <regression|smoke|full>
+  modules:
+    - <module 1>
+    - <module 2>
+  exploratory_tier: <Quick|Standard|Exhaustive>  # mặc định: Standard
+
+# ── EXIT CRITERIA ────────────────────────────────────────────
+# Dùng bởi: skill 07, 08, 13
+exit_criteria:
+  pass_rate: <số, ví dụ 95>           # %
+  health_score_baseline: <số, ví dụ 80>  # /100
+  max_s1_open: 0
+  max_s2_open: <số>
+  tc_executed_rate: <số, ví dụ 100>   # % TC phải chạy xong
+
+# ── SUSPENSION CRITERIA ──────────────────────────────────────
+# Dùng bởi: skill 07, 13
+suspension_criteria:
+  blocked_tc_rate: <số, ví dụ 30>     # % TC bị blocked thì tạm dừng
+  env_down_hours: <số, ví dụ 4>       # giờ môi trường down thì tạm dừng
+
+# ── PERFORMANCE BASELINE ─────────────────────────────────────
+# Dùng bởi: skill 11, 13, 14
+# Ghi đè lên defaults trong references/performance-baseline.md
+performance:
+  concurrent_users_normal: <số>       # concurrent users bình thường
+  concurrent_users_peak: <số>         # peak — dùng cho stress test
+  api_p95_ms: <số>                    # ngưỡng P95 response time (ms)
+  api_error_rate_threshold: <số>      # % error rate tối đa, ví dụ 1
+  page_load_lcp_s: <số>               # LCP tối đa (giây)
+  rollback_error_rate: <số>           # % error rate trigger rollback sau deploy, ví dụ 5
+
+# ── SECURITY ────────────────────────────────────────────────
+# Dùng bởi: skill 10
+security:
+  focus:                              # danh sách OWASP category ưu tiên
+    - <A01>
+    - <A03>
+    - <A07>
+  # Nếu trống, skill 10 sẽ kiểm tra toàn bộ OWASP Top 10
+
+# ── ACCESSIBILITY ────────────────────────────────────────────
+# Dùng bởi: skill 15, 13
+accessibility:
+  required: <true|false>
+  wcag_level: <AA|AAA>                # mặc định: AA
+  lighthouse_score_min: <số>          # mặc định: 80
+
+# ── UAT ─────────────────────────────────────────────────────
+# Dùng bởi: skill 12, 13
+uat:
+  required: <true|false>
+  stakeholders:
+    - name: <tên stakeholder>
+      role: <Product Owner|Business Analyst|End User|...>
+      department: <phòng ban>
+
+# ── CRITICAL USER JOURNEYS ───────────────────────────────────
+# Dùng bởi: skill 14 (smoke test production)
+# Liệt kê 5–10 luồng quan trọng nhất — nếu hỏng thì phải rollback
+critical_user_journeys:
+  - name: <tên ngắn, ví dụ "login">
+    description: <mô tả luồng theo ngôn ngữ nghiệp vụ>
+  - name: <tên ngắn, ví dụ "checkout">
+    description: <mô tả luồng>
+
+# ── DEFINITION OF DONE ──────────────────────────────────────
+# Dùng bởi: skill 08, 13
+definition_of_done:
+  - <TC viết xong và đã review>
+  - <Pass rate >= exit_criteria.pass_rate%>
+  - <Không còn S1 open>
+  - <Sprint report gửi stakeholder>
+
+# ── OUTPUT PATHS (optional) ──────────────────────────────────
+# Ghi đè default path của từng skill — bỏ section này nếu dùng cấu trúc thư mục mặc định
+# Dùng bởi: tất cả skill khi lưu output
+output_paths:
+  root: ~                             # default: testing-output/
+  test_plan: ~                        # default: testing-output/test-plan/
+  test_cases:
+    hltc: ~                           # default: testing-output/test-cases/hltc/
+    functional: ~                     # default: testing-output/test-cases/functional/
+    sit: ~                            # default: testing-output/test-cases/sit/
+    regression: ~                     # default: testing-output/test-cases/regression/
+  test_data: ~                        # default: testing-output/test-data/
+  automation: ~                       # default: testing-output/automation/
+  demo: ~                             # default: testing-output/demo/
+  reports:
+    root: ~                           # default: testing-output/reports/
+    daily: ~                          # default: testing-output/reports/daily/
+    sprint: ~                         # default: testing-output/reports/sprint/
+    security: ~                       # default: testing-output/reports/security/
+    performance: ~                    # default: testing-output/reports/performance/
+    accessibility: ~                  # default: testing-output/reports/accessibility/
+  integrations:
+    confluence_root: ~                # default: testing-output/confluence/
+    jira_root: ~                      # default: testing-output/jira/
+    qmetry_root: ~                    # default: testing-output/qmetry/
+
+# ── ARTIFACT TRACEABILITY (optional) ───────────────────────
+# Dùng bởi: skill 05, 07, 08
+artifact_traceability:
+  require_version_in_filename: <true|false>        # default: true
+  require_timestamp_in_filename: <true|false>      # default: true
+  require_result_manifest: <true|false>            # default: true
+  version_scheme: <semver>                         # default: semver
+  result_status:
+    - SUCCESS
+    - PARTIAL
+    - FAILED
+    - BLOCKED
+  manifests:
+    data_generation: ~                             # default: testing-output/test-data/
+    test_run: ~                                    # default: testing-output/reports/daily/
+
+# ── AUTOMATION RULES (optional) ───────────────────────────
+# Dùng bởi: skill 06 (gen script), skill 04 (review), skill 08 (report)
+automation_rules:
+  framework_primary: <robotframework>          # default: robotframework
+  ui_engine: <browser-playwright|selenium>     # default: browser-playwright
+  architecture:
+    model: <4-layer>                           # default: 4-layer
+    enforce_no_sql_in_testcase: <true|false>   # default: true
+    enforce_no_business_assert_in_low_level: <true|false>  # default: true
+  generation:
+    require_mapping_matrix: <true|false>       # default: true
+    require_dod_checklist: <true|false>        # default: true
+  data_strategy:
+    no_hardcode_sensitive_data: <true|false>   # default: true
+    file_types:
+      - <csv>
+      - <json>
+      - <yaml>
+  test_level_policy:
+    levels:
+      - component
+      - integration
+      - e2e
+    unit_test_in_scope: <true|false>            # default: false
+    target_mix_percent:
+      component: <số, ví dụ 30>
+      integration: <số, ví dụ 50>
+      e2e: <số, ví dụ 20>
+    mapping_rules:
+      functional_default: <component|e2e>       # default: e2e
+      sit_default: <integration>                # default: integration
+      functional_with_external_dependency: <e2e>
+      functional_single_screen_or_single_endpoint: <component>
+      sit_multi_service_sync: <integration>
+      sit_end_to_end_customer_journey: <e2e>
+    output_convention:
+      embed_test_level_in_tc_summary: <true|false>  # default: true
+      summary_prefix_format: <[TL:{level}]>

@@ -1,0 +1,24 @@
+uat:
+  vinshop:
+    SAM_SUNG_10:
+      platformName: Android
+      platformVersion: 10
+      appPackage: com.vingroup.VinIDMerchantApp.UAT
+      unicodeKeyboard: true
+      appActivity: com.vingroup.vinidmerchantapp.MainActivity
+      automationName: uiautomator1
+      fullReset: false
+      noReset: true
+      deviceName: 2232c03e23037ece
+    SAM_SUNG_9:
+      platformName: Android
+      platformVersion: 9
+      appPackage: com.vingroup.VinIDMerchantApp.UAT
+      unicodeKeyboard: true
+      appActivity: com.vingroup.vinidmerchantapp.MainActivity
+      automationName: uiautomator1
+      fullReset: false
+      noReset: true
+      deviceName: 2232c03e23037ece
+
+

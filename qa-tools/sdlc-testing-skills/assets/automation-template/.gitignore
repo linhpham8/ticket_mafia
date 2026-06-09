@@ -1,0 +1,54 @@
+# Python
+*.pyc
+pyvenv.cfg
+venv/
+Lib/
+Scripts/
+
+# IDE / Editor
+.idea/
+*.iml
+.vscode/
+.vscode/*
+
+# Robot Framework Reports
+Results/
+Report/
+log.html
+output.xml
+report.html
+interactive_console_output.xml
+also_console=False
+
+# Variables / Temp
+Variables/*.bak
+Variables/commonLocalVariables.py
+Variables/commonGlobalVariables.py
+Variables/File/*
+*.bak
+*.pickle
+token.pickle
+tokens-sms
+
+# Environment / Config
+KeywordLibraries/Common Keywords/Environment_Variable.txt
+
+# Tool / Generated Data
+Data/Tool/*
+DataTest/JSON/TMS/*.zip
+DataTest/EXCEL/TMS/*.xlsx
+
+# API Project Artifacts
+Projects/API/TMSPartnerPortal/*.xlsx
+Projects/API/TMSPartnerPortal/*.zip
+Projects/API/TMSDCPortal/*.xlsx
+Projects/API/TMSDCPortal/*.zip
+
+# VSCode snippets
+robot.code-snippets
+
+# AI / Extension
+.codegpt
+
+# Node modules
+Projects/RealEstateOps/Tests/node_modules/

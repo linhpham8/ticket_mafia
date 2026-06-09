@@ -1,0 +1,3 @@
+No	Testcase ID	Test Summary	Precondition	Test Data	Steps	Hệ thống A Expected Result	Hệ thống A Actual Result	Hệ thống A Test Result	Hệ thống B Expected Result	Hệ thống B Actual Result	Hệ thống B Test Result	Final Result	Priority	ID Bugs	Link evidence	Màn hình test	Thời gian test
+1. Nhóm nghiệp vụ (chỉ điền cột No)																	
+1	INQ_OI_1	Mô tả testcase SIT ngắn gọn	Tiền điều kiện hệ thống, service, account, certificate...	Dữ liệu kiểm thử cụ thể	1. Bước 1\n2. Bước 2\n3. Bước 3	Kỳ vọng phía Hệ thống A			Kỳ vọng phía Hệ thống B			High				

@@ -1,0 +1,6 @@
+# robot.toml — Robot Framework project configuration
+# RobotCode extension và robot CLI đều tự đọc file này khi chạy từ project này.
+# Tham khảo: https://robotcode.io/03_reference/robot.toml/
+
+[robot]
+output-dir = "testing-output/reports"

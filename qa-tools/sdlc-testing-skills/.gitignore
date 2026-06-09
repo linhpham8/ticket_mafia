@@ -1,0 +1,16 @@
+﻿# Runtime data — do not commit
+.env
+.env.local
+.env.secrets
+testing-output/
+docs/confluence/
+docs/jira/
+.venv/
+__pycache__/
+*.pyc
+.claude/settings.local.json
+
+# Robot Framework output — luôn dùng --outputdir, không commit ở root
+output.xml
+log.html
+report.html

@@ -1,0 +1,5 @@
+# qa-config.schema.yaml
+# Schema chuẩn cho file qa-config.yaml của từng project
+# Source of truth: references/qa-config-schema.yaml
+# File này là stub — xem chi tiết tại references/qa-config-schema.yaml
+$ref: "../references/qa-config-schema.yaml"

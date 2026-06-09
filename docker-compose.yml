@@ -1,0 +1,69 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ticket_mafia
+      POSTGRES_USER: ticket_mafia
+      POSTGRES_PASSWORD: ticket_mafia
+    ports:
+      - "15432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ticket_mafia -d ticket_mafia"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  backend:
+    image: maven:3.9.9-eclipse-temurin-21
+    working_dir: /workspace/backend
+    command: mvn -Dmaven.repo.local=/root/.m2/repository -Dmaven.test.skip=true spring-boot:run
+    profiles: ["local"]
+    volumes:
+      - .:/workspace
+      - ${HOME}/.m2:/root/.m2
+    environment:
+      SPRING_PROFILES_ACTIVE: local
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/ticket_mafia
+      SPRING_DATASOURCE_USERNAME: ticket_mafia
+      SPRING_DATASOURCE_PASSWORD: ticket_mafia
+      TICKETING_QR_SIGNING_SECRET: ${TICKETING_QR_SIGNING_SECRET:?Set TICKETING_QR_SIGNING_SECRET before starting the local backend}
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  website:
+    image: node:20-alpine
+    working_dir: /workspace/website
+    command: node smoke-server.mjs
+    profiles: ["local"]
+    volumes:
+      - .:/workspace
+    ports:
+      - "3000:3000"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3000/login >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  admins:
+    image: node:20-alpine
+    working_dir: /workspace/admins
+    command: node smoke-server.mjs
+    profiles: ["local"]
+    volumes:
+      - .:/workspace
+    ports:
+      - "3001:3001"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3001/login >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12

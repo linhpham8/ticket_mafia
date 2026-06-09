@@ -1,0 +1,1 @@
+Biến môi trường sẽ để trong file ENV_QC.yaml với môi trường QC và ENV_UAT.yaml với môi trường UAT.

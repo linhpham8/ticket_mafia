@@ -21,3 +21,11 @@ rad.json
 *.flf
 #Test results file
 TestResults.xml
+
+# JavaScript package/build output
+node_modules/
+.next/
+coverage/
+
+# Java build output
+target/

@@ -1,0 +1,164 @@
+STT	Summary	Test Level	Precondition	Test Data	Step summary	Expected result	Priority	Story Linkages	Test Type	Smoke	Auto	Phụ thuộc TC	Teardown	Trace	Design Refs	API Refs
+TC-001	[US-001][AC-001][EP+DT+ST] Mock OTP login succeeds for email or phone	integration	- A synthetic user identifier is not currently authenticated and mock OTP provider returns `000000`.	"synthetic identifier `fan1@example.test` and mock OTP `000000`; repeat with `84901234567`
+```json
+{""identifiers"":[""fan1@example.test"",""84901234567""],""otp"":""000000"",""expected_session"":""authenticated""}
+```
+
+<!-- ID: TC-002 -->
+<!-- VERIFIES: US-001 -->"	- POST `/api/v1/auth/otp/request` with the identifier, then POST `/api/v1/auth/otp/verify` with the same identifier and OTP `000000`.	"- [ ] OTP request response is successful and does not expose secrets.
+- [ ] Verify response returns an authenticated session token/cookie.
+- [ ] Session owner matches the identifier.
+- [ ] Protected purchase APIs can be called with the session and are not rejected for missing auth."	High	FR-001, US-001, AC-001, NFR-003	Functional	Y	Y	—	delete session/OTP records for identifiers	FR-001, US-001, AC-001, NFR-003; API-001, API-002, NFR-003	SCREEN-001 §Input/Success	API-001, API-002, NFR-003
+TC-002	[US-001][AC-002][EP+DT+ST+Security] Protected checkout and exchange require login	integration	- No session token/cookie is present.	"one open match, one issued ticket owned by `fan1`, unauthenticated request context
+```json
+{""auth"":null,""expected_error"":""AUTH_REQUIRED"",""protected_endpoints"":[""API-005"",""API-014""]}
+```
+
+<!-- ID: TC-003 -->
+<!-- VERIFIES: US-006 -->"	- Call `POST /api/v1/orders/checkout` and `POST /api/v1/tickets/{ticketId}/exchange/checkout`.	"- [ ] Both calls return 401/403 using the standard error envelope.
+- [ ] No order, hold, exchange order, or ticket mutation is created.
+- [ ] UI routes send the user to SCREEN-001 before continuing."	High	FR-001, US-001, AC-002, BR-001, NFR-003	Security	Y	Y	TC-001	reset orders/tickets created by fixture	FR-001, US-001, AC-002, BR-001, NFR-003; API-005, API-014, NFR-003	SCREEN-001 §Login required/Error	API-005, API-014, NFR-003
+TC-003	[US-006][AC-011][EP+DT+ST] Admin opens a created match for sale	e2e	- Admin is authenticated.	"admin session, match payload with status `OPEN_FOR_SALE`
+```json
+{""match"":{""home"":""CLB A"",""away"":""CLB B"",""status"":""OPEN_FOR_SALE""}}
+```
+
+<!-- ID: TC-004 -->
+<!-- VERIFIES: US-006 -->"	- Admin creates a match with status `OPEN_FOR_SALE`, then user opens the match list.	"- [ ] API-010 returns created match with `OPEN_FOR_SALE`.
+- [ ] API-003 returns the match in the user list.
+- [ ] User can open seat selection for that match."	High	FR-006, US-006, AC-011, BR-008	Functional	Y	Y	TC-001	delete created match/seats	FR-006, US-006, AC-011, BR-008; API-010, API-003	SCREEN-006 §Populated	API-010, API-003
+TC-004	[US-006][AC-012][EP+DT+ST] Cancelled or closed match blocks new purchase	integration	- Existing matches have status `CANCELLED` and `CLOSED`.	"matches with `CANCELLED` and `CLOSED`, available seats
+```json
+{""statuses"":[""CANCELLED"",""CLOSED""],""expected_error"":""MATCH_NOT_OPEN_FOR_SALE""}
+```
+
+<!-- ID: TC-005 -->
+<!-- VERIFIES: US-007 -->"	- User opens match list and attempts checkout for those matches by API.	"- [ ] Non-selling matches are absent from purchasable list or visibly non-purchasable.
+- [ ] Checkout returns `MATCH_NOT_OPEN_FOR_SALE`.
+- [ ] No seat hold/order is created."	High	FR-006, US-006, AC-012, BR-008	Functional	Y	Y	TC-003	reset match statuses	FR-006, US-006, AC-012, BR-008; API-010, API-003, API-005	SCREEN-006 §Status change, SCREEN-002 §Filtered/Blocked	API-010, API-003, API-005
+TC-005	[US-007][AC-013][EP+DT+ST] New checkout uses latest active price after admin update	integration	- Admin has generated a seat and set old price `100000`.	"seat `A-T1-001`, old price 100000, new price 120000
+```json
+{""seatCode"":""A-T1-001"",""oldPrice"":100000,""newPrice"":120000,""expectedSnapshot"":120000}
+```
+
+<!-- ID: TC-006 -->
+<!-- VERIFIES: US-007 -->"	- Admin updates the seat price to `120000`, then user starts a new checkout for that seat.	"- [ ] Checkout order item has price snapshot `120000`.
+- [ ] Total amount equals the sum of new snapshots.
+- [ ] Older inactive price version is not used for this new order."	High	FR-007, US-007, AC-013, BR-004	Functional	Y	Y	TC-003	reset price_versions and orders	FR-007, US-007, AC-013, BR-004; API-012, API-005	SCREEN-007 §Price configured	API-012, API-005
+TC-006	[US-007][AC-014][EP+DT+ST] Existing checkout keeps original snapshot after price update	integration	- User has an active checkout order with snapshot price `100000`.	"checkout order created before price update
+```json
+{""originalSnapshot"":100000,""updatedActivePrice"":120000}
+```
+
+<!-- ID: TC-007 -->
+<!-- VERIFIES: US-002 -->"	- Admin updates active price to `120000`.	"- [ ] Existing order item remains `100000`.
+- [ ] Existing checkout total remains unchanged.
+- [ ] A later new checkout uses `120000`."	High	FR-007, US-007, AC-014, BR-004	Regression	Y	Y	TC-005	cancel order and reset price_versions	FR-007, US-007, AC-014, BR-004; API-012, API-005	SCREEN-007 §Snapshot edge, SCREEN-004 §Amount restated	API-012, API-005
+TC-007	[US-002][AC-003][EP+ST] User sees OPEN_FOR_SALE match and enters seat selection	e2e	- Match `M-OPEN` is `OPEN_FOR_SALE`.	"one open match with generated seats
+```json
+{""matchStatus"":""OPEN_FOR_SALE"",""expectedScreen"":""SCREEN-003""}
+```
+
+<!-- ID: TC-008 -->
+<!-- VERIFIES: US-002 -->"	- User opens match list and selects `M-OPEN`.	"- [ ] Match appears with sale information.
+- [ ] Seat selection opens and calls API-004.
+- [ ] Sections/floors/prices are visible."	High	FR-002, US-002, AC-003	Functional	Y	Y	TC-003	reset match/seat fixture	FR-002, US-002, AC-003; API-003, API-004	SCREEN-002 §Populated	API-003, API-004
+TC-008	[US-002][AC-004][EP+DT+DD+ST] Non-purchasable match statuses do not start purchase	integration	- Matches exist in non-selling statuses.	"matches in `SOLD_OUT`, `CANCELLED`, `CLOSED`
+```json
+{""statuses"":[""SOLD_OUT"",""CANCELLED"",""CLOSED""],""expected"":""not_purchasable""}
+```
+
+<!-- ID: TC-009 -->
+<!-- VERIFIES: US-003 -->"	- User lists matches and attempts checkout for each non-selling match.	"- [ ] Match is not available for new purchase.
+- [ ] Checkout is rejected.
+- [ ] No order/hold is created."	High	FR-002, US-002, AC-004, BR-008	Functional	Y	Y	TC-003	reset matches	FR-002, US-002, AC-004, BR-008; API-003, API-005	SCREEN-002 §Filtered/Blocked	API-003, API-005
+TC-009	[US-003][AC-005][BVA+EP+DT+ST+DD] Select 1 to 5 available seat codes with current prices	e2e	- User is logged in and the seat map has available seat codes.	"available seats across A/B/C/D, floors 1/2, A VIP with distinct prices
+```json
+{""seatCounts"":[1,5],""seatCodes"":[""A-VIP-001"",""A-T1-001"",""B-T2-001"",""C-T1-001"",""D-T2-001""]}
+```
+
+<!-- ID: TC-010 -->
+<!-- VERIFIES: US-003 -->"	- User selects 1 seat, then expands selection up to 5 seats.	"- [ ] Each selected seat is marked selected and remains counted once.
+- [ ] Seat code, section, floor/VIP, price, and status color are visible.
+- [ ] The selected total equals the sum of current visible prices."	High	FR-003, US-003, AC-005, BR-003	Functional	Y	Y	TC-007	clear selected state and reset seats	FR-003, US-003, AC-005, BR-003; API-004	SCREEN-003 §Seat map populated, DS-COMP-001	API-004
+TC-010	[US-003][AC-006][BVA+DT+ST] Sixth selected seat is blocked	component	- User already selected 5 seats.	"six available seats
+```json
+{""selectedBefore"":5,""attemptedAfter"":6,""expected_error"":""MAX_SEATS_EXCEEDED""}
+```
+
+<!-- ID: TC-011 -->
+<!-- VERIFIES: US-004 -->"	- User selects a sixth available seat.	"- [ ] UI blocks the action with max-5 message.
+- [ ] Selected seat count remains 5.
+- [ ] Backend checkout with 6 seat IDs returns validation error and creates no order."	High	FR-003, US-003, AC-006, BR-003	Functional	Y	Y	TC-009	clear selected state	FR-003, US-003, AC-006, BR-003; API-004	SCREEN-003 §Limit error	API-004
+TC-012	[US-004][AC-008][BVA+DT+ST] Expired checkout hold releases seats and rejects payment completion	integration	- A checkout hold has exceeded 10 minutes.	"held order with `holdExpiresAt = now - 1s`
+```json
+{""holdAge"":""PT10M+1S"",""expectedSeatStatus"":""AVAILABLE"",""expected_error"":""ORDER_EXPIRED""}
+```
+
+<!-- ID: TC-013 -->
+<!-- VERIFIES: US-008 -->"	- Expiry job runs and user attempts payment completion.	"- [ ] Order status is `EXPIRED`.
+- [ ] Held seats return to `AVAILABLE`.
+- [ ] Payment completion returns `ORDER_EXPIRED`.
+- [ ] User must create a new order."	High	FR-004, FR-005, US-004, US-005, AC-008, AC-010, BR-002	Functional	Y	Y	TC-011	reset seats/orders	FR-004, FR-005, US-004, US-005, AC-008, AC-010, BR-002; API-005, API-006, NFR-002	SCREEN-004 §Expired, SCREEN-005 §Expired	API-005, API-006, NFR-002
+TC-014	[US-008][AC-016][BVA+EP+DT+ST] Admin rejection or confirmation expiry releases seats	integration	- Orders are `PENDING_ADMIN_CONFIRM`.	"one pending order for reject path, one expired pending order
+```json
+{""branches"":[""admin_reject"",""confirmation_expiry""],""expectedSeatStatus"":""AVAILABLE""}
+```
+
+<!-- ID: TC-015 -->
+<!-- VERIFIES: US-009 -->"	- Admin rejects one order, and expiry job processes another order older than 10 minutes.	"- [ ] Rejected order status is `REJECTED` or `CANCELLED` per implementation enum.
+- [ ] Expired pending order is cancelled/expired.
+- [ ] Seats from both orders return to `AVAILABLE`.
+- [ ] Audit/log evidence contains operation, order ID, actor where applicable, status, duration/error code without PII."	High	FR-008, US-008, AC-016, BR-005, NFR-004	Functional	Y	Y	TC-011	reset orders/seats/audit logs	FR-008, US-008, AC-016, BR-005, NFR-004; API-007, NFR-004	SCREEN-008 §Rejected/Expired, DS-COMP-005	API-007, NFR-004
+TC-015	[US-009][AC-017][EP+DT+ST+DD] Purchase history shows only current user's records and statuses	integration	- Fan1 and fan2 both have orders/tickets.	"fan1 records in pending/issued/rejected/exchanged/scanned states; fan2 records
+```json
+{""viewer"":""fan1@example.test"",""forbiddenOwner"":""fan2@example.test"",""statuses"":[""PENDING_ADMIN_CONFIRM"",""ISSUED"",""REJECTED"",""EXCHANGED"",""USED_SCANNED""]}
+```
+
+<!-- ID: TC-016 -->
+<!-- VERIFIES: US-009 -->"	- Fan1 calls `GET /api/v1/orders`.	"- [ ] Response includes only fan1 records.
+- [ ] Current statuses match database state.
+- [ ] Fan2 order/ticket IDs are absent."	High	FR-009, US-009, AC-017, BR-001	Functional	Y	Y	TC-013	reset orders/tickets	FR-009, US-009, AC-017, BR-001; API-008	SCREEN-009 §Populated	API-008
+TC-016	[US-009][AC-018][EP+DT+Security] Empty purchase history shows no other user's data	integration	- Logged-in user has no purchases and another user has purchases.	"fan_empty has no purchases; fan2 has purchases
+```json
+{""viewer"":""fan_empty@example.test"",""otherUser"":""fan2@example.test"",""expected"":[]}
+```
+
+<!-- ID: TC-017 -->
+<!-- VERIFIES: US-010 -->"	- User opens purchase history.	"- [ ] API returns empty list for the logged-in user.
+- [ ] UI shows empty state.
+- [ ] No other user's order, ticket, seat, or QR details are visible."	High	FR-009, US-009, AC-018, BR-001	Security	Y	Y	TC-015	reset users/orders/tickets	FR-009, US-009, AC-018, BR-001; API-008	SCREEN-009 §Empty	API-008
+TC-017	[US-010][AC-019][EP+DT+ST+Security] Issued ticket detail shows signed QR without PII	integration	- Fan owns a ticket with status `ISSUED`.	"fan-owned `ISSUED` ticket
+```json
+{""ticketStatus"":""ISSUED"",""forbiddenPlaintext"":[""fan1@example.test"",""84901234567"",""Nguyen Van A""]}
+```
+
+<!-- ID: TC-018 -->
+<!-- VERIFIES: US-010 -->"	- Fan opens `GET /api/v1/tickets/{ticketId}`.	"- [ ] Response includes match, seat code, ticket status, and QR/e-ticket token.
+- [ ] QR token is signed/opaque and does not contain email, phone, or full name in decodable plaintext.
+- [ ] UI shows a large QR card and valid status."	High	FR-009, US-010, AC-019, BR-006, NFR-003	Security	Y	Y	TC-013	reset ticket	FR-009, US-010, AC-019, BR-006, NFR-003; API-009, NFR-003	SCREEN-010 §Issued QR, DS-COMP-003	API-009, NFR-003
+TC-018	[US-010][AC-020][EP+DT+ST+DD] Invalid ticket statuses are not presented as valid entry tickets	integration	- Fan owns non-entry-valid tickets.	"fan-owned tickets in `CANCELLED`, `REJECTED`, `EXCHANGED`
+```json
+{""invalidStatuses"":[""CANCELLED"",""REJECTED"",""EXCHANGED""],""expectedEntryValid"":false}
+```
+
+<!-- ID: TC-019 -->
+<!-- VERIFIES: US-011 -->"	- Fan opens ticket detail for each status.	"- [ ] UI/API does not present the ticket as valid for entry.
+- [ ] QR is absent, disabled, or clearly invalid according to design.
+- [ ] Status chip matches the ticket status."	High	FR-009, US-010, AC-020, BR-006	Functional	Y	Y	TC-017	reset tickets	FR-009, US-010, AC-020, BR-006; API-009	SCREEN-010 §Invalid/Status	API-009
+TC-020	[US-011][AC-022][EP+DT+ST+Security] Repeated scan is rejected and ticket remains scanned	integration	- Ticket is already `USED/SCANNED`.	"ticket already `USED/SCANNED`
+```json
+{""initialStatus"":""USED_SCANNED"",""expected_error"":""TICKET_ALREADY_SCANNED""}
+```
+
+<!-- ID: TC-021 -->
+<!-- VERIFIES: US-012 -->"	- Scan consumer submits the same QR token again.	"- [ ] API returns `TICKET_ALREADY_SCANNED` or equivalent conflict error.
+- [ ] Ticket remains `USED/SCANNED`.
+- [ ] No second successful scan event is created."	High	FR-010, US-011, AC-022, BR-006	Security	Y	Y	TC-019	reset ticket	FR-010, US-011, AC-022, BR-006; API-013	SCREEN-011 §Already scanned error	API-013
+TC-024	[US-012][AC-024][EP+DT] Cheaper or unavailable replacement seat blocks exchange and Docker smoke passes	e2e	- User owns an `ISSUED` ticket and local Docker Compose services are running.	"issued ticket, cheaper available seat, equal/higher unavailable seat, local runtime seed
+```json
+{""branches"":[""cheaper_available"",""higher_unavailable""],""expected_error"":""EXCHANGE_TARGET_NOT_ELIGIBLE"",""dockerSmoke"":true}
+```"	- User attempts exchange to a cheaper seat and then to an unavailable seat.	"- [ ] Both attempts are blocked before checkout.
+- [ ] No exchange order or new hold is created.
+- [ ] Old ticket remains `ISSUED`.
+- [ ] Docker Compose health/smoke path can still complete auth → browse → checkout → admin confirm → ticket detail."	Medium	FR-011, US-012, AC-024, BR-007, NFR-005	Functional	Y	Y	TC-021	reset exchange attempts and Docker DB seed as needed	FR-011, US-012, AC-024, BR-007, NFR-005; API-014, NFR-005	SCREEN-012 §Blocked exchange, DS-COMP-001	API-014, NFR-005

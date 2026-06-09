@@ -1,0 +1,112 @@
+# testcase.schema.yaml — v2.0
+# Schema cho test case artifact (TSV format, 15 cột)
+# Dùng bởi: qa-core/05, 06, 07
+# AI: validate output trước khi lưu file và trước khi mark DONE
+
+schema_version: "2.0"
+format: "TSV — Tab-Separated Values"
+
+columns:
+  - name: STT
+    type: string
+    required: true
+    pattern: "TC-\\d{3,}"
+    example: "TC-001"
+
+  - name: Summary
+    type: string
+    required: true
+    min_length: 10
+    max_length: 200
+    forbidden_phrases: []
+
+  - name: Test Level
+    type: enum
+    required: true
+    values: [Component, Integration, E2E]
+
+  - name: Precondition
+    type: string
+    required: true
+    note: "Không để trống — ghi 'None' nếu không có điều kiện tiên quyết"
+
+  - name: Test Data
+    type: string
+    required: false
+    note: "Ghi 'N/A' nếu không cần data đặc biệt"
+
+  - name: Step summary
+    type: string
+    required: true
+    min_length: 20
+
+  - name: Expected result
+    type: string
+    required: true
+    min_length: 10
+    forbidden_phrases:
+      - "hoạt động đúng"
+      - "hiển thị bình thường"
+      - "thành công chung chung"
+      - "works correctly"
+    note: "Phải verifiable và cụ thể — không mơ hồ"
+
+  - name: Priority
+    type: enum
+    required: true
+    values: [P1, P2, P3, P4]
+    note: "P1=Critical/Blocker, P2=High, P3=Medium, P4=Low"
+
+  - name: Story Linkages
+    type: string
+    required: true
+    note: "ID của US/ticket/AC. VD: US-001, JIRA-123, AC-01"
+
+  - name: Test Type
+    type: enum
+    required: true
+    values: [Functional, Regression, Smoke, Sanity, Exploratory, Negative, Boundary, SIT, UAT, Performance, Security, Accessibility]
+
+  - name: Smoke
+    type: enum
+    required: true
+    values: [Yes, No]
+    rule: "TC có Priority P1 phải có Smoke=Yes"
+
+  - name: Auto
+    type: enum
+    required: true
+    values: [Yes, No, Partial]
+
+  - name: Phụ thuộc TC
+    type: string
+    required: false
+    note: "TC ID phải chạy trước. Ghi 'None' nếu không có."
+
+  - name: Teardown
+    type: string
+    required: false
+    note: "Cleanup sau TC. Ghi 'None' nếu không cần."
+
+  - name: Trace
+    type: string
+    required: true
+    note: "Rule ID / AC ID từ tài liệu yêu cầu. Phải map được về requirement."
+
+validation_rules:
+  - "Header TSV phải có chính xác 15 cột theo thứ tự trên"
+  - "Mỗi AC/BR trong requirement phải có ít nhất 1 TC với Trace tương ứng"
+  - "TC Priority P1 phải có Smoke=Yes"
+  - "Expected result không được chứa forbidden_phrases"
+  - "Story Linkages phải trỏ đến ID có trong tài liệu yêu cầu đầu vào"
+  - "Trace field không được để trống"
+
+coverage_requirements:
+  required_groups:
+    - "Happy path (normal flow)"
+    - "Negative / Invalid input"
+    - "Boundary Value"
+    - "Authorization / Access control"
+    - "Error handling / System error"
+  smoke_coverage_min_pct: 20
+  min_tc_per_ac: 1

@@ -68,7 +68,7 @@ ai-code-review-agent/              ← GỐC repo (copy nguyên thư mục này 
 > - Để cả hai file trong repo cũng không sao: GitHub chỉ đọc của GitHub, GitLab chỉ đọc của GitLab.
 
 Mã nguồn chia tầng rõ ràng:
-- **agents.py** — `ReviewAgent` (base lo gọi LLM + parse JSON) và 4 lớp con: `BugAgent`, `SecurityAgent`, `PerformanceAgent`, `ConventionAgent`. Thêm mảng mới = viết thêm 1 class.
+- **agents.py** — `ReviewAgent` (base lo gọi LLM + parse JSON) và 4 lớp con: `BugAgent`, `SecurityAgent`, `PerformanceAgent`, `ConventionAgent`. Thêm mảng mới = viết thêm 1 class. `ConventionAgent` còn **tự nhận ngôn ngữ qua đuôi file** để áp đúng quy ước đặt tên (snake_case cho Python/Ruby/Rust, camelCase cho TS/JS/Java/Kotlin…) và **kiểm chính tả** trong tên định danh + comment.
 - **clients.py** — `GitHubClient` và `GitLabClient` cùng interface (`get_changed_files`, `post_review`). Thêm nền tảng mới = viết thêm 1 client.
 - **review_agent.py** — orchestrator: tự nhận nền tảng, chạy 4 agent song song trên từng file, gộp & định dạng kết quả.
 

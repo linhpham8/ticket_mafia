@@ -30,7 +30,7 @@ Bối cảnh:
 
 Nhiệm vụ chuyên môn của bạn — chỉ tập trung vào nhóm này, bỏ qua nhóm khác:
 {focus}
-
+{extra}
 Nguyên tắc quyết định có flag hay không:
 - Với lỗi rõ ràng thuộc mảng của bạn: soi kỹ, đừng bỏ sót dù kịch bản kích hoạt hiếm.
 - Với vấn đề mức thấp: chỉ báo khi CHẮC CHẮN và nêu được kịch bản cụ thể gây lỗi.
@@ -56,15 +56,20 @@ class ReviewAgent:
     label = "Base"
     focus = ""
 
-    def system_prompt(self) -> str:
-        return BASE_SYSTEM.format(label=self.label, focus=self.focus)
+    def extra_context(self, filename: str) -> str:
+        """Ngữ cảnh riêng theo file (mặc định rỗng). Subclass có thể override."""
+        return ""
+
+    def system_prompt(self, filename: str = "") -> str:
+        return BASE_SYSTEM.format(label=self.label, focus=self.focus,
+                                  extra=self.extra_context(filename))
 
     def review(self, client: Anthropic, model: str, filename: str, patch: str) -> list[dict]:
         user_msg = f"File: {filename}\n\nDiff:\n```diff\n{patch}\n```"
         resp = client.messages.create(
             model=model,
             max_tokens=1500,
-            system=self.system_prompt(),
+            system=self.system_prompt(filename),
             messages=[{"role": "user", "content": user_msg}],
         )
         text = "".join(b.text for b in resp.content if b.type == "text")
@@ -122,13 +127,45 @@ class ConventionAgent(ReviewAgent):
     name = "convention"
     category = "convention"
     label = "Coding convention"
-    focus = """Tìm vấn đề về quy ước & khả năng bảo trì:
-- Đặt tên khó hiểu/không nhất quán, magic number nên thành hằng số.
-- Hàm quá dài hoặc làm quá nhiều việc, lồng quá sâu.
-- Code lặp có thể gom (DRY), nhánh xử lý lỗi bị nuốt/bỏ trống.
-- Vi phạm quy ước phổ biến của ngôn ngữ đang dùng.
-Bỏ qua tiểu tiết format thuần (đã có linter lo). Không yêu cầu thêm docstring/type hint
-trừ khi việc thiếu nó thực sự gây khó hiểu/dễ sai."""
+    focus = """Tìm vấn đề về quy ước, đặt tên, chính tả & khả năng bảo trì:
+- ĐẶT TÊN: kiểm định danh (biến, hàm, class, hằng) có đúng kiểu chữ quy ước của
+  ngôn ngữ không (xem phần "QUY ƯỚC ĐẶT TÊN" bên dưới). Tên khó hiểu/không nhất quán.
+- CHÍNH TẢ: lỗi gõ sai trong tên định danh và comment (vd 'recieve'->'receive',
+  'lenght'->'length', 'occured'->'occurred'). CHỈ báo lỗi chính tả rõ ràng;
+  KHÔNG báo từ viết tắt hợp lệ (auth, idx, cfg, req, ctx, tmp, db, init...).
+- Magic number nên thành hằng số; hàm quá dài/làm quá nhiều việc; lồng quá sâu.
+- Code lặp có thể gom (DRY); nhánh xử lý lỗi bị nuốt/bỏ trống.
+Bỏ qua tiểu tiết format thuần (thụt lề, dấu cách — đã có linter lo). Không yêu cầu
+thêm docstring/type hint trừ khi việc thiếu nó thực sự gây khó hiểu/dễ sai."""
+
+    # Quy ước đặt tên cho biến/hàm theo đuôi file. Class hầu hết là PascalCase,
+    # hằng số là UPPER_SNAKE_CASE — nêu chung trong text để model áp dụng.
+    NAMING = {
+        ".py":  "snake_case (Python: biến/hàm snake_case, class PascalCase, hằng UPPER_SNAKE_CASE)",
+        ".rb":  "snake_case (Ruby: biến/hàm snake_case, class CamelCase, hằng SCREAMING_SNAKE_CASE)",
+        ".rs":  "snake_case (Rust: biến/hàm snake_case, type/struct PascalCase, const UPPER_SNAKE_CASE)",
+        ".ts":  "camelCase (TypeScript: biến/hàm camelCase, class/type/interface PascalCase, hằng UPPER_SNAKE_CASE)",
+        ".tsx": "camelCase (TypeScript: biến/hàm camelCase, component/type PascalCase, hằng UPPER_SNAKE_CASE)",
+        ".js":  "camelCase (JavaScript: biến/hàm camelCase, class PascalCase, hằng UPPER_SNAKE_CASE)",
+        ".jsx": "camelCase (JavaScript: biến/hàm camelCase, component/class PascalCase, hằng UPPER_SNAKE_CASE)",
+        ".java":"camelCase (Java: biến/method camelCase, class PascalCase, hằng UPPER_SNAKE_CASE)",
+        ".kt":  "camelCase (Kotlin: biến/hàm camelCase, class PascalCase, hằng UPPER_SNAKE_CASE)",
+        ".cs":  "PascalCase cho method/property; camelCase cho biến local/tham số (C#)",
+        ".swift":"camelCase (Swift: biến/hàm camelCase, type PascalCase)",
+        ".go":  "mixedCaps/PascalCase (Go: KHÔNG dùng snake_case; export = PascalCase, nội bộ = camelCase)",
+        ".php": "camelCase (PHP/PSR: method camelCase, class PascalCase)",
+    }
+
+    def extra_context(self, filename: str) -> str:
+        import os as _os
+        ext = _os.path.splitext(filename)[1].lower()
+        rule = self.NAMING.get(ext)
+        if not rule:
+            return ""
+        return ("QUY ƯỚC ĐẶT TÊN cho file này:\n"
+                f"- {rule}\n"
+                "- Báo khi định danh MỚI trong diff sai kiểu chữ so với quy ước trên.\n"
+                "- Đừng đụng tên đã tồn tại không nằm trong diff.")
 
 
 # Danh sách 4 agent — orchestrator sẽ chạy lần lượt/song song qua list này.

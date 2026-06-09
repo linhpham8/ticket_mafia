@@ -18,9 +18,9 @@ final class InventoryValidation {
         if (!SECTIONS.contains(normalizedSection)) {
             throw invalid(code, "sectionCode");
         }
-        if (floorNo == null || (floorNo != 1 && floorNo != 2)) {
-            throw invalid(code, "floorNo");
-        }
+        // if (floorNo == null || (floorNo != 1 && floorNo != 2)) {
+        //     throw invalid(code, "floorNo");
+        // }
         boolean vip = Boolean.TRUE.equals(isVip);
         if (vip && !"A".equals(normalizedSection)) {
             throw invalid(code, "isVip");

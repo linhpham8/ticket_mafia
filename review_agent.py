@@ -158,7 +158,7 @@ def build_summary(all_findings: list[dict]) -> str:
         )
     lines += [
         "",
-        "_Tự động tạo bởi 4 agent chuyên biệt. Quyết định cuối thuộc về reviewer._",
+        "_Được review bởi 4 checker. AI có thể sai, checker có thể nhầm. Merge hay không là quyền năng của bro. Merge at your own risk._",
     ]
     return "\n".join(lines)
 

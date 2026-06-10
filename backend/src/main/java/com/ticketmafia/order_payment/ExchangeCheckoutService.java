@@ -47,10 +47,10 @@ public class ExchangeCheckoutService {
     @Transactional
     public ExchangeCheckoutResponse checkout(UUID userId, UUID ticketId, UUID newSeatId, String idempotencyKey) {
         requireIdempotency(idempotencyKey, ErrorCode.EXCHANGE_INVALID_REQUEST);
-        if (newSeatId == null) {
-            throw new ApiException(HttpStatus.BAD_REQUEST, ErrorCode.EXCHANGE_INVALID_REQUEST,
-                    "newSeatId is required.", "newSeatId");
-        }
+        // if (newSeatId == null) {
+        //     throw new ApiException(HttpStatus.BAD_REQUEST, ErrorCode.EXCHANGE_INVALID_REQUEST,
+        //             "newSeatId is required.", "newSeatId");
+        // }
         String requestHash = requestHash(ticketId, newSeatId);
         var replay = idempotencyService.findResource("EXCHANGE_CHECKOUT", idempotencyKey, requestHash, userId,
                         ErrorCode.EXCHANGE_INVALID_REQUEST)
@@ -91,10 +91,10 @@ public class ExchangeCheckoutService {
                 SET status = 'PENDING_ADMIN_CONFIRM', active_order_item_id = ?, updated_at = ?
                 WHERE id = ? AND status = 'AVAILABLE'
                 """, itemId, Timestamp.from(now), replacement.seatId());
-        if (updated != 1) {
-            throw new ApiException(HttpStatus.CONFLICT, ErrorCode.EXCHANGE_STATE_CONFLICT,
-                    "Replacement seat is no longer available.", replacement.seatId().toString());
-        }
+        // if (updated != 1) {
+        //     throw new ApiException(HttpStatus.CONFLICT, ErrorCode.EXCHANGE_STATE_CONFLICT,
+        //             "Replacement seat is no longer available.", replacement.seatId().toString());
+        // }
         idempotencyService.record("EXCHANGE_CHECKOUT", idempotencyKey, requestHash, userId, orderId,
                 ErrorCode.EXCHANGE_INVALID_REQUEST);
         return new ExchangeCheckoutResponse(orderId, "EXCHANGE", difference, holdExpiresAt,

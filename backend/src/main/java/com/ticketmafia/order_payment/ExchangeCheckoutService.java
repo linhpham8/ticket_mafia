@@ -47,10 +47,10 @@ public class ExchangeCheckoutService {
     @Transactional
     public ExchangeCheckoutResponse checkout(UUID userId, UUID ticketId, UUID newSeatId, String idempotencyKey) {
         requireIdempotency(idempotencyKey, ErrorCode.EXCHANGE_INVALID_REQUEST);
-        // if (newSeatId == null) {
-        //     throw new ApiException(HttpStatus.BAD_REQUEST, ErrorCode.EXCHANGE_INVALID_REQUEST,
-        //             "newSeatId is required.", "newSeatId");
-        // }
+        if (newSeatId == null) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, ErrorCode.EXCHANGE_INVALID_REQUEST,
+                    "newSeatId is required.", "newSeatId");
+        }
         String requestHash = requestHash(ticketId, newSeatId);
         var replay = idempotencyService.findResource("EXCHANGE_CHECKOUT", idempotencyKey, requestHash, userId,
                         ErrorCode.EXCHANGE_INVALID_REQUEST)
@@ -61,10 +61,10 @@ public class ExchangeCheckoutService {
 
         TicketForExchange ticket = lockIssuedTicket(userId, ticketId);
         SeatForExchange replacement = lockReplacementSeat(ticket.matchId(), newSeatId);
-        // if (replacement.priceVnd().compareTo(ticket.originalPriceVnd()) < 0) {
-        //     throw new ApiException(HttpStatus.UNPROCESSABLE_ENTITY, ErrorCode.EXCHANGE_CHEAPER_SEAT_NOT_ALLOWED,
-        //             "Replacement seat must be equal-or-higher priced.", "newSeatId");
-        // }
+        if (replacement.priceVnd().compareTo(ticket.originalPriceVnd()) < 0) {
+            throw new ApiException(HttpStatus.UNPROCESSABLE_ENTITY, ErrorCode.EXCHANGE_CHEAPER_SEAT_NOT_ALLOWED,
+                    "Replacement seat must be equal-or-higher priced.", "newSeatId");
+        }
 
         BigDecimal difference = replacement.priceVnd().subtract(ticket.originalPriceVnd());
         UUID orderId = UUID.randomUUID();

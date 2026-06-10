@@ -1,4 +1,4 @@
-name: AI Code Review
+name: Merge Checker
 
 # Trigger: chạy mỗi khi PR được mở, push commit mới, hoặc mở lại.
 on:
@@ -6,12 +6,12 @@ on:
     types: [opened, synchronize, reopened]
 
 permissions:
-  contents: read          # đọc code
-  pull-requests: write    # cần quyền này để comment vào PR
+  contents: read # đọc code
+  pull-requests: write # cần quyền này để comment vào PR
 
 jobs:
   review:
-    name: AI Code Review
+    name: Merge Checker
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -25,10 +25,10 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Run AI Code Review
+      - name: Run Merge Checker
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}        # GitHub tự cấp, không cần tạo
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}  # tự thêm trong repo Settings > Secrets
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # GitHub tự cấp, không cần tạo
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }} # tự thêm trong repo Settings > Secrets
           GITHUB_REPOSITORY: ${{ github.repository }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
         run: python review_agent.py

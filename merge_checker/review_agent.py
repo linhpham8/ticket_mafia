@@ -6,11 +6,12 @@ Luồng:
      hoặc chỉ định bằng --platform.
   2. Lấy diff các file thay đổi (qua client tương ứng).
   3. Với mỗi file, chạy SONG SONG 4 agent (bug / security / performance / convention).
-  4. Gộp findings.
-  5. Comment vào PR/MR (1 comment tổng hợp + comment inline đúng dòng).
+  4. VERIFY: thẩm định lại từng findings để loại false positive (bật/tắt bằng REVIEW_VERIFY).
+  5. Gộp findings.
+  6. Comment vào PR/MR (1 comment tổng hợp + comment inline đúng dòng).
 
-Phần 4 agent (agents.py) và phần này KHÔNG phụ thuộc nền tảng — chỉ tầng
-client (clients.py) là khác nhau giữa GitHub và GitLab.
+Phần 4 agent (agents.py), bước verify (verifier.py) và phần này KHÔNG phụ thuộc
+nền tảng — chỉ tầng client (clients.py) là khác nhau giữa GitHub và GitLab.
 
 Chạy thử:
   # GitHub
@@ -28,6 +29,7 @@ from concurrent.futures import ThreadPoolExecutor
 from anthropic import Anthropic
 
 from agents import ALL_AGENTS
+from verifier import Verifier
 from clients import GitHubClient, GitLabClient
 
 MODEL = os.getenv("REVIEW_MODEL", "claude-sonnet-4-6")
@@ -59,6 +61,9 @@ CATEGORY_LABEL = {a.category: a.label for a in ALL_AGENTS}
 BLOCKING_CATEGORIES = set(
     os.getenv("REVIEW_BLOCKING_CATEGORIES", "bug,security,performance").split(",")
 )
+
+# Bật/tắt bước verify. Mặc định BẬT. Tắt bằng REVIEW_VERIFY=0 (hoặc false/no).
+VERIFY_ENABLED = os.getenv("REVIEW_VERIFY", "1").lower() not in ("0", "false", "no", "")
 
 
 def has_blocking(findings: list[dict]) -> bool:
@@ -95,7 +100,6 @@ def parse_added_lines(patch: str) -> set[int]:
 
 
 def review_file(client: Anthropic, filename: str, patch: str) -> list[dict]:
-    patch = patch[:MAX_PATCH_CHARS]
     findings = []
     with ThreadPoolExecutor(max_workers=len(ALL_AGENTS)) as pool:
         futures = [
@@ -111,12 +115,23 @@ def review_file(client: Anthropic, filename: str, patch: str) -> list[dict]:
 # ----------------------------------------------------------------------------
 
 
-def build_summary(all_findings: list[dict]) -> str:
+def build_summary(all_findings: list[dict], verify_stats: dict | None = None) -> str:
+    # Dòng ghi chú bước verify (nếu có chạy và có loại được cái nào).
+    verify_note = ""
+    if verify_stats and verify_stats.get("dropped", 0) > 0:
+        verify_note = (
+            f"🔍 Bước verify đã loại **{verify_stats['dropped']}** báo động giả "
+            f"(còn lại {verify_stats['kept']}/{verify_stats['raw']})."
+        )
+
     if not all_findings:
-        return (
+        body = (
             "## 🤖 AI Code Review\n\n"
             "✅ Cả 4 agent không phát hiện vấn đề đáng kể. **Cho phép merge.**"
         )
+        if verify_note:
+            body += f"\n\n{verify_note}"
+        return body
 
     counts = {}
     for f in all_findings:
@@ -145,6 +160,8 @@ def build_summary(all_findings: list[dict]) -> str:
         f"Tổng cộng **{len(all_findings)}** vấn đề:",
         "",
     ]
+    if verify_note:
+        lines += [verify_note, ""]
     for cat, label in CATEGORY_LABEL.items():
         if cat in counts:
             tag = " (chặn)" if cat in BLOCKING_CATEGORIES else ""
@@ -156,10 +173,10 @@ def build_summary(all_findings: list[dict]) -> str:
         lines.append(
             f"- {icon} `{f['file']}:{f.get('line', '?')}` **[{label}]** {f['comment']}"
         )
-    lines += [
-        "",
-        "_Tự động tạo bởi 4 agent chuyên biệt. Quyết định cuối thuộc về reviewer._",
-    ]
+    footer = "_Được review bởi 4 checker"
+    footer += " + 1 bước verify lọc false positive" if verify_stats else ""
+    footer += ". AI có thể sai, checker có thể nhầm. Merge hay không là quyền năng của bro. Merge at your own risk._"
+    lines += ["", footer]
     return "\n".join(lines)
 
 
@@ -235,17 +252,26 @@ def main():
     p.add_argument("--project", default=None, help="GitLab: project id")
     p.add_argument("--mr", type=int, default=0, help="GitLab: MR iid")
     p.add_argument("--dry-run", action="store_true")
+    # Cho phép tắt verify ngay trên dòng lệnh (ngoài biến môi trường REVIEW_VERIFY).
+    p.add_argument(
+        "--no-verify",
+        action="store_true",
+        help="bỏ qua bước verify lọc false positive",
+    )
     args = p.parse_args()
 
     if not os.getenv("ANTHROPIC_API_KEY"):
         p.error("Chưa set ANTHROPIC_API_KEY.")
 
+    verify_on = VERIFY_ENABLED and not args.no_verify
+
     platform = detect_platform(args.platform)
     client = build_client(platform, args)
     llm = Anthropic()
-    print(f"[*] Nền tảng: {platform}")
+    verifier = Verifier()
+    print(f"[*] Nền tảng: {platform} | verify: {'BẬT' if verify_on else 'TẮT'}")
 
-    print("[1/4] Lấy file thay đổi ...")
+    print("[1/5] Lấy file thay đổi ...")
     files = client.get_changed_files()
     code_files = [
         f
@@ -256,28 +282,60 @@ def main():
     ]
     print(f"      {len(code_files)}/{len(files)} file code cần review.")
 
-    print(f"[2/4] Mỗi file chạy {len(ALL_AGENTS)} agent song song ...")
-    all_findings, valid_lines = [], {}
+    print(f"[2/5] Mỗi file chạy {len(ALL_AGENTS)} agent song song ...")
+    # Lưu patch (đã cắt) theo file để bước verify dùng lại đúng đoạn diff agent đã thấy.
+    patches: dict[str, str] = {}
+    valid_lines: dict[str, set] = {}
+    raw_by_file: dict[str, list[dict]] = {}
     for f in code_files:
-        name, patch = f["filename"], f["patch"]
+        name = f["filename"]
+        patch = f["patch"][:MAX_PATCH_CHARS]
+        patches[name] = patch
         valid_lines[name] = parse_added_lines(patch)
         found = review_file(llm, name, patch)
+        raw_by_file[name] = found
         print(f"      - {name}: {len(found)} phát hiện")
-        all_findings.extend(found)
 
-    print("[3/4] Tổng hợp ...")
-    summary = build_summary(all_findings)
+    raw_count = sum(len(v) for v in raw_by_file.values())
+
+    print("[3/5] Verify (lọc false positive) ...")
+    all_findings: list[dict] = []
+    if verify_on:
+        for name, found in raw_by_file.items():
+            kept = verifier.verify(llm, MODEL, name, patches[name], found)
+            dropped = len(found) - len(kept)
+            if dropped:
+                print(f"      - {name}: giữ {len(kept)}/{len(found)} (loại {dropped} false positive)")
+            all_findings.extend(kept)
+        kept_count = len(all_findings)
+        print(
+            f"      Verify xong: giữ {kept_count}/{raw_count}, "
+            f"loại {raw_count - kept_count} báo động giả."
+        )
+    else:
+        for found in raw_by_file.values():
+            all_findings.extend(found)
+        print("      (bỏ qua — verify đang TẮT)")
+
+    verify_stats = (
+        {"raw": raw_count, "kept": len(all_findings), "dropped": raw_count - len(all_findings)}
+        if verify_on
+        else None
+    )
+
+    print("[4/5] Tổng hợp ...")
+    summary = build_summary(all_findings, verify_stats)
     inline = build_inline_comments(all_findings, valid_lines)
     blocking = has_blocking(all_findings)
 
     if args.dry_run:
-        print("\n[4/4] (dry-run)\n")
+        print("\n[5/5] (dry-run)\n")
         print(summary)
         print(f"\n--- {len(inline)} comment inline ---")
         for c in inline:
             print(f"  {c['file']}:{c['line']} -> {c['body'][:80]}")
     else:
-        print("[4/4] Đăng review ...")
+        print("[5/5] Đăng review ...")
         client.post_review(summary, inline)
         print("      Đã đăng ✅")
 

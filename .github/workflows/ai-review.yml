@@ -23,7 +23,7 @@ jobs:
           python-version: "3.12"
 
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: pip install -r merge_checker/requirements.txt
 
       - name: Run Merge Checker
         env:
@@ -31,4 +31,4 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }} # tự thêm trong repo Settings > Secrets
           GITHUB_REPOSITORY: ${{ github.repository }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
-        run: python review_agent.py
+        run: python merge_checker/review_agent.py

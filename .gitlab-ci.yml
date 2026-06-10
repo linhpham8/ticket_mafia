@@ -1,5 +1,6 @@
 # GitLab CI — AI Code Review
 # File này đặt ở GỐC repo (khác GitHub: không nằm trong thư mục con).
+# Code đặt trong merge_checker/, nên các lệnh phải trỏ vào folder đó.
 # Trigger: chỉ chạy khi pipeline đến từ một Merge Request.
 
 ai_code_review:
@@ -11,5 +12,5 @@ ai_code_review:
     # GITLAB_TOKEN và ANTHROPIC_API_KEY: tự thêm ở Settings > CI/CD > Variables.
     GIT_DEPTH: "0"
   script:
-    - pip install -r requirements.txt
-    - python review_agent.py --platform gitlab
+    - pip install -r merge_checker/requirements.txt
+    - python merge_checker/review_agent.py --platform gitlab

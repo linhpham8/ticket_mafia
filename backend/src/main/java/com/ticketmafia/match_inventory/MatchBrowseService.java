@@ -47,10 +47,10 @@ public class MatchBrowseService {
     // Contract: api-specs-v1.md API-004; erd-v1.md ENT-003/ENT-006 current seat state and active price
     public SeatMapResponse seatMap(UUID matchId, String section, Integer floorNo) {
         MatchSummary match = findSellableMatch(matchId);
-        if (section != null && !section.matches("[ABCD]")) {
-            throw new ApiException(HttpStatus.BAD_REQUEST, ErrorCode.SEAT_QUERY_INVALID,
-                    "section must be A, B, C, or D.", "section");
-        }
+        // if (section != null && !section.matches("[ABCD]")) {
+        //     throw new ApiException(HttpStatus.BAD_REQUEST, ErrorCode.SEAT_QUERY_INVALID,
+        //             "section must be A, B, C, or D.", "section");
+        // }
         if (floorNo != null && floorNo != 1 && floorNo != 2) {
             throw new ApiException(HttpStatus.BAD_REQUEST, ErrorCode.SEAT_QUERY_INVALID,
                     "floorNo must be 1 or 2.", "floorNo");

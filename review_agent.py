@@ -33,8 +33,21 @@ from clients import GitHubClient, GitLabClient
 MODEL = os.getenv("REVIEW_MODEL", "claude-sonnet-4-6")
 
 CODE_EXTENSIONS = (
-    ".py", ".js", ".ts", ".tsx", ".jsx", ".go", ".java",
-    ".rb", ".php", ".c", ".cpp", ".cs", ".rs", ".kt", ".swift",
+    ".py",
+    ".js",
+    ".ts",
+    ".tsx",
+    ".jsx",
+    ".go",
+    ".java",
+    ".rb",
+    ".php",
+    ".c",
+    ".cpp",
+    ".cs",
+    ".rs",
+    ".kt",
+    ".swift",
 )
 MAX_PATCH_CHARS = 6000
 
@@ -57,6 +70,7 @@ def has_blocking(findings: list[dict]) -> bool:
 # Tiện ích diff
 # ----------------------------------------------------------------------------
 
+
 def parse_added_lines(patch: str) -> set[int]:
     """Tập số dòng (file mới) nằm trong diff — chỉ những dòng này comment inline được."""
     valid, new_line = set(), 0
@@ -66,7 +80,8 @@ def parse_added_lines(patch: str) -> set[int]:
             new_line = int(m.group(1))
             continue
         if line.startswith("+"):
-            valid.add(new_line); new_line += 1
+            valid.add(new_line)
+            new_line += 1
         elif line.startswith("-"):
             continue
         else:
@@ -78,11 +93,14 @@ def parse_added_lines(patch: str) -> set[int]:
 # Chạy 4 agent song song
 # ----------------------------------------------------------------------------
 
+
 def review_file(client: Anthropic, filename: str, patch: str) -> list[dict]:
     patch = patch[:MAX_PATCH_CHARS]
     findings = []
     with ThreadPoolExecutor(max_workers=len(ALL_AGENTS)) as pool:
-        futures = [pool.submit(a.review, client, MODEL, filename, patch) for a in ALL_AGENTS]
+        futures = [
+            pool.submit(a.review, client, MODEL, filename, patch) for a in ALL_AGENTS
+        ]
         for fut in futures:
             findings.extend(fut.result())
     return findings
@@ -92,10 +110,13 @@ def review_file(client: Anthropic, filename: str, patch: str) -> list[dict]:
 # Tổng hợp & định dạng (chung cho cả 2 nền tảng)
 # ----------------------------------------------------------------------------
 
+
 def build_summary(all_findings: list[dict]) -> str:
     if not all_findings:
-        return ("## 🤖 AI Code Review\n\n"
-                "✅ Cả 4 agent không phát hiện vấn đề đáng kể. **Cho phép merge.**")
+        return (
+            "## 🤖 AI Code Review\n\n"
+            "✅ Cả 4 agent không phát hiện vấn đề đáng kể. **Cho phép merge.**"
+        )
 
     counts = {}
     for f in all_findings:
@@ -105,15 +126,25 @@ def build_summary(all_findings: list[dict]) -> str:
     blocking = has_blocking(all_findings)
     block_labels = ", ".join(CATEGORY_LABEL.get(c, c) for c in BLOCKING_CATEGORIES)
     if blocking:
-        verdict = (f"### ❌ CHẶN MERGE\n"
-                   f"Phát hiện vấn đề thuộc nhóm chặn ({block_labels}). "
-                   f"Cần xử lý trước khi merge.")
+        verdict = (
+            f"### ❌ CHẶN MERGE\n"
+            f"Phát hiện vấn đề thuộc nhóm chặn ({block_labels}). "
+            f"Cần xử lý trước khi merge."
+        )
     else:
-        verdict = ("### ✅ CHO PHÉP MERGE\n"
-                   "Chỉ có góp ý về coding convention — không bắt buộc, nên xem qua.")
+        verdict = (
+            "### ✅ CHO PHÉP MERGE\n"
+            "Chỉ có góp ý về coding convention — không bắt buộc, nên xem qua."
+        )
 
-    lines = ["## 🤖 AI Code Review (4 agent)", "", verdict, "",
-             f"Tổng cộng **{len(all_findings)}** vấn đề:", ""]
+    lines = [
+        "## 🤖 Merge Checker",
+        "",
+        verdict,
+        "",
+        f"Tổng cộng **{len(all_findings)}** vấn đề:",
+        "",
+    ]
     for cat, label in CATEGORY_LABEL.items():
         if cat in counts:
             tag = " (chặn)" if cat in BLOCKING_CATEGORIES else ""
@@ -122,12 +153,19 @@ def build_summary(all_findings: list[dict]) -> str:
     for f in sorted(all_findings, key=lambda x: x.get("severity", "low")):
         icon = SEVERITY_ICON.get(f.get("severity"), "")
         label = CATEGORY_LABEL.get(f["category"], f["category"])
-        lines.append(f"- {icon} `{f['file']}:{f.get('line', '?')}` **[{label}]** {f['comment']}")
-    lines += ["", "_Tự động tạo bởi 4 agent chuyên biệt. Quyết định cuối thuộc về reviewer._"]
+        lines.append(
+            f"- {icon} `{f['file']}:{f.get('line', '?')}` **[{label}]** {f['comment']}"
+        )
+    lines += [
+        "",
+        "_Tự động tạo bởi 4 agent chuyên biệt. Quyết định cuối thuộc về reviewer._",
+    ]
     return "\n".join(lines)
 
 
-def build_inline_comments(all_findings: list[dict], valid_lines: dict[str, set]) -> list[dict]:
+def build_inline_comments(
+    all_findings: list[dict], valid_lines: dict[str, set]
+) -> list[dict]:
     """Trả về dạng CHUẨN HOÁ {file, line, body}; client tự đổi sang API của mình."""
     comments = []
     for f in all_findings:
@@ -145,12 +183,13 @@ def build_inline_comments(all_findings: list[dict], valid_lines: dict[str, set])
 # Chọn client theo nền tảng
 # ----------------------------------------------------------------------------
 
+
 def detect_platform(arg_platform: str | None) -> str:
     if arg_platform:
         return arg_platform
-    if os.getenv("GITLAB_CI"):       # GitLab CI tự set biến này = "true"
+    if os.getenv("GITLAB_CI"):  # GitLab CI tự set biến này = "true"
         return "gitlab"
-    return "github"                  # mặc định
+    return "github"  # mặc định
 
 
 def build_client(platform: str, args):
@@ -158,7 +197,9 @@ def build_client(platform: str, args):
         repo = args.repo or os.getenv("GITHUB_REPOSITORY")
         pr = args.pr or int(os.getenv("PR_NUMBER", 0) or 0)
         if not repo or not pr:
-            raise SystemExit("GitHub: thiếu --repo / --pr (hoặc GITHUB_REPOSITORY / PR_NUMBER).")
+            raise SystemExit(
+                "GitHub: thiếu --repo / --pr (hoặc GITHUB_REPOSITORY / PR_NUMBER)."
+            )
         return GitHubClient(os.getenv("GITHUB_TOKEN", ""), repo, pr)
 
     if platform == "gitlab":
@@ -166,7 +207,9 @@ def build_client(platform: str, args):
         mr = args.mr or int(os.getenv("CI_MERGE_REQUEST_IID", 0) or 0)
         api_url = os.getenv("CI_API_V4_URL", "https://gitlab.com/api/v4")
         if not project or not mr:
-            raise SystemExit("GitLab: thiếu --project / --mr (hoặc CI_PROJECT_ID / CI_MERGE_REQUEST_IID).")
+            raise SystemExit(
+                "GitLab: thiếu --project / --mr (hoặc CI_PROJECT_ID / CI_MERGE_REQUEST_IID)."
+            )
         return GitLabClient(os.getenv("GITLAB_TOKEN", ""), project, mr, api_url)
 
     raise SystemExit(f"Nền tảng không hỗ trợ: {platform}")
@@ -176,10 +219,15 @@ def build_client(platform: str, args):
 # Main
 # ----------------------------------------------------------------------------
 
+
 def main():
-    p = argparse.ArgumentParser(description="AI Code Review Agent (4 agent) — GitHub & GitLab")
-    p.add_argument("--platform", choices=["github", "gitlab"], default=None,
-                   help="mặc định tự nhận từ môi trường CI")
+    p = argparse.ArgumentParser(description="AI Code Review Agent  — GitHub & GitLab")
+    p.add_argument(
+        "--platform",
+        choices=["github", "gitlab"],
+        default=None,
+        help="mặc định tự nhận từ môi trường CI",
+    )
     # GitHub
     p.add_argument("--repo", default=None, help="GitHub: owner/repo")
     p.add_argument("--pr", type=int, default=0, help="GitHub: số PR")
@@ -199,9 +247,13 @@ def main():
 
     print("[1/4] Lấy file thay đổi ...")
     files = client.get_changed_files()
-    code_files = [f for f in files
-                  if f.get("patch") and f["filename"].endswith(CODE_EXTENSIONS)
-                  and f.get("status") != "removed"]
+    code_files = [
+        f
+        for f in files
+        if f.get("patch")
+        and f["filename"].endswith(CODE_EXTENSIONS)
+        and f.get("status") != "removed"
+    ]
     print(f"      {len(code_files)}/{len(files)} file code cần review.")
 
     print(f"[2/4] Mỗi file chạy {len(ALL_AGENTS)} agent song song ...")

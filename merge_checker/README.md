@@ -23,10 +23,11 @@ flowchart TD
     F --> F2[SecurityAgent]
     F --> F3[PerformanceAgent]
     F --> F4[ConventionAgent]
-    F1 --> G[Gộp findings<br/>mỗi finding gắn nhãn nhóm]
-    F2 --> G
-    F3 --> G
-    F4 --> G
+    F1 --> V[Verify: thẩm định lại từng finding<br/>loại false positive]
+    F2 --> V
+    F3 --> V
+    F4 --> V
+    V --> G[Gộp findings<br/>mỗi finding gắn nhãn nhóm]
     G --> H[Lọc finding theo dòng nằm trong diff]
     H --> I[Đăng review vào PR/MR:<br/>1 comment tổng hợp + comment inline]
 ```
@@ -38,34 +39,40 @@ Diễn giải từng bước:
 3. **Lấy diff** — GitHub gọi `GET /pulls/{n}/files`; GitLab gọi `GET /merge_requests/{iid}/changes`. Cả hai trả về được chuẩn hoá thành `{filename, patch, status}`. Chỉ gửi *diff* → tiết kiệm token.
 4. **Lọc** — chỉ review file có đuôi code (`.py`, `.js`, `.go`…), bỏ file bị xóa và file không phải code.
 5. **4 agent phân tích** — mỗi file gửi đồng thời cho 4 agent (`agents.py`), mỗi agent có prompt riêng và trả về **JSON có cấu trúc**. Chạy song song bằng `ThreadPoolExecutor`.
-6. **Lọc theo dòng** — chỉ comment inline lên dòng nằm trong diff; finding ngoài diff gom vào comment tổng hợp.
-7. **Hành động** — đăng comment tổng hợp + comment inline đúng dòng. GitHub dùng *review*; GitLab dùng *note* + *discussions có position*.
+6. **Verify (lọc false positive)** — gom findings theo từng file rồi hỏi lại LLM một lượt (`verifier.py`) đóng vai người kiểm định nghiêm khắc: finding nào chỉ là suy đoán / lý thuyết / trùng lặp thì **loại bỏ**, finding nào chỉ ra được đường code cụ thể thì **giữ** (và chỉnh lại severity nếu cần). Bật/tắt bằng `REVIEW_VERIFY`. Xem mục 6.
+7. **Lọc theo dòng** — chỉ comment inline lên dòng nằm trong diff; finding ngoài diff gom vào comment tổng hợp.
+8. **Hành động** — đăng comment tổng hợp + comment inline đúng dòng. GitHub dùng *review*; GitLab dùng *note* + *discussions có position*.
 
 ---
 
 ## 2. Cấu trúc dự án
 
 ```
-ai-code-review-agent/              ← GỐC repo (copy nguyên thư mục này vào repo của bạn)
+repo-của-bạn/                      ← GỐC repo
 │
-├── agents.py                      # 4 agent chuyên biệt + base class (prompt riêng từng mảng)
-├── clients.py                     # GitHubClient + GitLabClient (cùng 1 interface)
-├── review_agent.py                # Orchestrator: chọn nền tảng, chạy 4 agent, gộp, comment
-├── prompts_comparison.md          # So sánh prompt với PR-Agent / CodeRabbit / BugBot...
-├── requirements.txt               # anthropic, requests
-├── .env.example                   # mẫu biến môi trường (chạy local)
-│
-├── .github/                       # ── TRIGGER CHO GITHUB ──
+├── .github/                       # ── TRIGGER CHO GITHUB (ở GỐC) ──
 │   └── workflows/
-│       └── ai-review.yml          # đặt đúng .github/workflows/ ở gốc repo
+│       └── ai-review.yml          # đọc từ .github/workflows/ — KHÔNG nhét vào folder con
 │
-└── .gitlab-ci.yml                 # ── TRIGGER CHO GITLAB ── (đặt ở GỐC repo)
+├── .gitlab-ci.yml                 # ── TRIGGER CHO GITLAB (ở GỐC) ── KHÔNG nhét vào folder con
+│
+└── merge_checker/                 # ── TẤT CẢ CODE GOM VÀO ĐÂY ──
+    ├── review_agent.py            # Orchestrator: chọn nền tảng, chạy 4 agent, verify, gộp, comment
+    ├── agents.py                  # 4 agent chuyên biệt + base class (prompt riêng từng mảng)
+    ├── verifier.py                # Bước verify: LLM-as-judge lọc false positive
+    ├── clients.py                 # GitHubClient + GitLabClient (cùng 1 interface)
+    ├── requirements.txt           # anthropic, requests
+    ├── prompts_comparison.md      # So sánh prompt với PR-Agent / CodeRabbit / BugBot...
+    └── README_REVIEW_AGENT.md     # file này
 ```
 
-> Lưu ý vị trí file trigger:
-> - **GitHub** đọc file trong `.github/workflows/` (thư mục con, ở gốc repo).
-> - **GitLab** đọc file `.gitlab-ci.yml` đặt **thẳng ở gốc repo** (không có thư mục con).
-> - Để cả hai file trong repo cũng không sao: GitHub chỉ đọc của GitHub, GitLab chỉ đọc của GitLab.
+> **Vì sao 2 file trigger phải nằm ở GỐC, không gom được vào `merge_checker/`:**
+> - **GitHub** chỉ đọc workflow trong `.github/workflows/` ở gốc repo.
+> - **GitLab** chỉ đọc `.gitlab-ci.yml` đặt **thẳng ở gốc repo**.
+> - Đặt sai chỗ = CI không chạy. Nên code gom vào `merge_checker/`, còn 2 file CI ở gốc và **trỏ lệnh vào trong folder** (`python merge_checker/review_agent.py`).
+> - Để cả hai file CI trong repo cũng không sao: GitHub chỉ đọc của GitHub, GitLab chỉ đọc của GitLab.
+
+> **Import giữa các file Python KHÔNG cần sửa.** Khi chạy `python merge_checker/review_agent.py`, Python tự thêm thư mục `merge_checker/` vào đầu `sys.path`, nên `from agents import ...`, `from verifier import ...`, `from clients import ...` vẫn tìm thấy các file anh em cùng folder.
 
 Mã nguồn chia tầng rõ ràng:
 - **agents.py** — `ReviewAgent` (base lo gọi LLM + parse JSON) và 4 lớp con: `BugAgent`, `SecurityAgent`, `PerformanceAgent`, `ConventionAgent`. Thêm mảng mới = viết thêm 1 class. `ConventionAgent` còn **tự nhận ngôn ngữ qua đuôi file** để áp đúng quy ước đặt tên (snake_case cho Python/Ruby/Rust, camelCase cho TS/JS/Java/Kotlin…) và **kiểm chính tả** trong tên định danh + comment.
@@ -77,13 +84,13 @@ Mã nguồn chia tầng rõ ràng:
 ## 3. Cách chạy
 
 ### A. GitHub (tự động qua GitHub Actions)
-1. Copy nguyên thư mục này vào repo GitHub của bạn (giữ nguyên `.github/workflows/ai-review.yml`).
+1. Copy thư mục `merge_checker/` vào gốc repo GitHub, và đặt `ai-review.yml` vào `.github/workflows/`.
 2. Vào **Settings → Secrets and variables → Actions**, thêm secret `ANTHROPIC_API_KEY`.
    (`GITHUB_TOKEN` được GitHub tự cấp, không cần tạo.)
 3. Mở một Pull Request → workflow tự chạy và comment vào PR.
 
 ### B. GitLab (tự động qua GitLab CI)
-1. Copy nguyên thư mục này vào repo GitLab (giữ nguyên `.gitlab-ci.yml` ở **gốc** repo).
+1. Copy thư mục `merge_checker/` vào gốc repo GitLab, và đặt `.gitlab-ci.yml` ở **gốc** repo.
 2. Vào **Settings → CI/CD → Variables**, thêm 2 biến:
    - `ANTHROPIC_API_KEY`
    - `GITLAB_TOKEN` — Project Access Token có quyền `api` (để comment được vào MR).
@@ -93,21 +100,21 @@ Mã nguồn chia tầng rõ ràng:
 
 ### C. Chạy thử ở local
 ```bash
-pip install -r requirements.txt
+pip install -r merge_checker/requirements.txt
 export ANTHROPIC_API_KEY=sk-ant-...
 
 # GitHub:
 export GITHUB_TOKEN=ghp_...
-python review_agent.py --platform github --repo your-name/your-repo --pr 12
+python merge_checker/review_agent.py --platform github --repo your-name/your-repo --pr 12
 
 # GitLab:
 export GITLAB_TOKEN=glpat-...
-python review_agent.py --platform gitlab --project 123456 --mr 5
+python merge_checker/review_agent.py --platform gitlab --project 123456 --mr 5
 ```
 
 ### D. Demo offline (lúc thuyết trình, không đụng PR/MR thật)
 ```bash
-python review_agent.py --platform github --repo any/repo --pr 1 --dry-run
+python merge_checker/review_agent.py --platform github --repo any/repo --pr 1 --dry-run
 ```
 `--dry-run` chỉ in kết quả review ra màn hình, không đăng comment.
 *(Lưu ý: bản `--dry-run` vẫn gọi GitHub/GitLab API để lấy diff thật; muốn demo hoàn toàn offline thì cần repo/PR có thật mà bạn có quyền đọc.)*
@@ -162,18 +169,40 @@ Chỉ `exit 1` thôi thì check đỏ **nhưng nút merge vẫn bấm được**
 
 ---
 
-## 6. Giới hạn & hướng mở rộng
+## 6. Bước verify (lọc false positive)
 
-Bản này đã tách 4 agent chuyên biệt và hỗ trợ cả GitHub lẫn GitLab. Có thể nâng cấp tiếp:
-- **Thêm bước verify** — hỏi lại LLM "đây có thật sự là lỗi không?" để giảm false positive (cách Anthropic & Cursor BugBot làm).
-- **Khử trùng giữa các agent** — nếu 2 agent báo trùng một dòng, gộp lại.
+Agent đi tìm lỗi có xu hướng "thà báo nhầm còn hơn bỏ sót" → dễ sinh **false positive**. Bước verify (`verifier.py`) là một lượt LLM thứ hai đóng vai **người kiểm định nghiêm khắc**, chỉ làm một việc: **bác bỏ những phát hiện không đáng tin**, không tìm thêm lỗi mới. Đây là cách Anthropic (multi-agent) và Cursor BugBot hạ false positive — tách hẳn bước phát hiện và bước hậu kiểm.
+
+Cách hoạt động:
+- Sau khi 4 agent xong, findings được **gom theo từng file** rồi gửi cho verifier **một lượt/file** (rẻ hơn hỏi từng finding, lại cho verifier thấy các finding cùng file để bắt trùng lặp).
+- Verifier **loại** finding khi: suy đoán về code ngoài diff, lo ngại lý thuyết không có kịch bản cụ thể, nitpick style đội lốt bug, trùng nội dung finding khác, hoặc số dòng/mô tả không khớp diff.
+- Verifier **giữ** finding khi chỉ ra được đường code cụ thể trong diff + kịch bản kích hoạt rõ ràng; khi giữ có thể **chỉnh lại severity** cho đúng mức.
+- **Fail-open**: nếu verifier lỗi (API/JSON hỏng) → giữ nguyên findings, không lọc. Thà để lọt false positive còn hơn nuốt mất lỗi thật.
+
+Bật/tắt:
+```bash
+REVIEW_VERIFY=0     # tắt verify (mặc định là bật)
+# hoặc trên dòng lệnh:
+python review_agent.py --no-verify ...
+```
+
+Comment tổng hợp sẽ hiện thêm dòng `🔍 Bước verify đã loại N báo động giả` khi có lọc được.
+
+> Đánh đổi: thêm ~1 lượt gọi LLM mỗi file (chỉ những file có findings), đổi lấy ít comment rác hơn và merge gate đáng tin hơn. Token tốn thêm tỉ lệ với số file có lỗi, không phải toàn bộ PR.
+
+---
+
+## 7. Giới hạn & hướng mở rộng
+
+Bản này đã tách 4 agent chuyên biệt, có bước verify lọc false positive, và hỗ trợ cả GitHub lẫn GitLab. Có thể nâng cấp tiếp:
+- **Khử trùng giữa các agent** — nếu 2 agent báo trùng một dòng, gộp lại (verifier hiện chỉ khử trùng trong phạm vi cùng file, chưa gộp chéo agent một cách chủ động).
 - **Tránh spam** — khi push commit mới, cập nhật comment cũ thay vì tạo mới.
 - **Thêm Bitbucket/Azure DevOps** — viết thêm 1 client cùng interface; phần 4 agent giữ nguyên.
 - **Thêm context** — gửi kèm code xung quanh, hoặc index cả repo (RAG) — đây là chỗ CodeRabbit/Greptile ăn điểm.
 
 ---
 
-## 7. Công nghệ
+## 8. Công nghệ
 
 - **Python 3.12**
 - **Anthropic Claude API** (`claude-sonnet-4-6`, đổi được sang `claude-opus-4-8`)
